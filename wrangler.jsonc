@@ -1,0 +1,8 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "fiscaiscanoas",
+  "main": "cloudflare/worker.js",
+  "compatibility_date": "2026-10-03",
+  "assets": { "directory": "./frontend/public", "binding": "ASSETS" },
+  "d1_databases": [{ "binding": "DB", "database_name": "fiscaiscanoas-db", "database_id": "8ec1b0db-4d9c-45dc-b18a-15b694b18e94" }]
+}
