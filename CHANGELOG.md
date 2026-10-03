@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.1 - 2026-10-03
+
+- Inclusão de quatro cadastros adicionais, todos vinculados a locais oficiais.
+
 ## 0.3.0 - 2026-10-03
 
 - Importação de lista existente de fiscais para a base operacional.

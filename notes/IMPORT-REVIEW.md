@@ -1,6 +1,6 @@
 # Revisão da importação inicial
 
-Foram importados 43 registros da lista operacional fornecida em 3 de outubro de 2026. Desses, 36 foram vinculados a locais oficiais; 7 permaneceram sem vínculo automático e 8 não tinham telefone informado.
+Foram importados 47 registros das listas operacionais fornecidas em 3 de outubro de 2026. Desses, 40 foram vinculados a locais oficiais; 7 permaneceram sem vínculo automático e 8 não tinham telefone informado.
 
 Registros sem vínculo automático exigem conferência antes de aparecerem na cobertura de um local: Escola Guarani, Harmonia e Mathias, Harmonia Luterano, Irmão Migel e Local não especificado.
 
