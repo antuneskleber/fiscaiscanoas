@@ -173,8 +173,8 @@
           </div>
 
           <div>
-            <label for="phoneInput">Telefone / WhatsApp *</label>
-            <input id="phoneInput" type="tel" required placeholder="(51) 99999-9999">
+            <label for="phoneInput">Telefone / WhatsApp (Opcional)</label>
+            <input id="phoneInput" type="tel" placeholder="(51) 99999-9999">
           </div>
 
           <div>
@@ -197,8 +197,9 @@
       <div class="mgmt-header">
         <h2 class="mgmt-title">📋 Fiscais Cadastrados (<span id="tableCount">0</span>)</h2>
         <div class="export-btns">
+          <button type="button" class="btn-tool" id="btnExportTxt">📄 Exportar TXT</button>
           <button type="button" class="btn-tool" id="btnExportCsv">📥 Exportar CSV</button>
-          <button type="button" class="btn-tool" id="btnCopyWa">💬 Copiar p/ WhatsApp</button>
+          <button type="button" class="btn-tool" id="btnCopyWa">💬 Copiar Texto</button>
         </div>
       </div>
 
@@ -471,6 +472,25 @@
       });
     });
 
+    function generateTxtList() {
+      return fiscals.map(f => {
+        const tel = f.phone ? formatPhone(f.phone) : 'Não informado';
+        return `${f.location_name}\nFiscal: ${f.name}\nTel: ${tel}`;
+      }).join('\n\n');
+    }
+
+    // Exportar TXT
+    document.querySelector('#btnExportTxt').addEventListener('click', () => {
+      const txt = generateTxtList();
+      const blob = new Blob([txt], { type: 'text/plain;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `lista_fiscais_canoas_${new Date().toISOString().slice(0,10)}.txt`;
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+
     // Exportar CSV
     document.querySelector('#btnExportCsv').addEventListener('click', () => {
       let csv = 'ID;Nome;Telefone;Local;Secao\n';
@@ -486,15 +506,11 @@
       URL.revokeObjectURL(url);
     });
 
-    // Copiar p/ WhatsApp
+    // Copiar Texto formatado
     document.querySelector('#btnCopyWa').addEventListener('click', () => {
-      let txt = `*LISTA DE FISCAIS DE CANOAS* (${fiscals.length} cadastrados)\n\n`;
-      fiscals.forEach((f, i) => {
-        const sec = f.section ? `(Seção ${f.section})` : '(Geral)';
-        txt += `${i+1}. *${f.name}* - ${f.location_name} ${sec} | ${formatPhone(f.phone)}\n`;
-      });
+      const txt = generateTxtList();
       navigator.clipboard.writeText(txt).then(() => {
-        alert('Lista copiada para a área de transferência! Cole no WhatsApp.');
+        alert('Lista copiada com sucesso na formatação padrão!');
       }).catch(() => {
         alert('Não foi possível copiar automaticamente.');
       });

@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.4.6 - 2026-10-03
+
+- Telefone / WhatsApp agora é opcional no formulário de cadastro e edição no Painel Admin.
+- Adicionado botão de "Exportar TXT" e cópia de lista na formatação exata (Escola, Fiscal e Telefone com quebras de linha duplas).
+
 ## 0.4.5 - 2026-10-03
 
 - Integração total dos locais de fiscalização (Escola Guarani, Escola Irmão Miguel, Harmonia / Luterano, Fiscais Volantes) como cards oficiais com seus respectivos endereços e fiscais escalados.
