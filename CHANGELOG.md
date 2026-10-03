@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.3 - 2026-10-03
+
+- Interface otimizada para uso predominante em celulares: controles maiores, tipografia sem zoom automático e suporte a áreas seguras de tela.
+
 ## 0.3.2 - 2026-10-03
 
 - Preparação da base D1 para publicação no Cloudflare, com migração versionada e telemetria do Worker habilitada.

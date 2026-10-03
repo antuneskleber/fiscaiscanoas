@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#173a67">
   <title>Cadastrar fiscal | Fiscais Canoas</title>
   <style>
-    :root { --ink:#14223a; --muted:#536174; --paper:#fff; --canvas:#f3f6fa; --line:#d9e1ec; --brand:#173a67; --ok:#087443; --danger:#b3261e; } *{box-sizing:border-box} body{margin:0;background:var(--canvas);color:var(--ink);font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}.wrap{max-width:640px;margin:auto;padding:28px 16px 64px}.back{color:var(--brand);font-weight:700;text-decoration:none}h1{margin:20px 0 6px;color:var(--brand);font-size:1.8rem}p{color:var(--muted)}form{margin-top:22px;padding:22px;border:1px solid var(--line);border-radius:14px;background:var(--paper);box-shadow:0 2px 8px #14223a0a}label{display:block;margin:16px 0 6px;font-weight:700}input,select,button{width:100%;min-height:48px;border:1px solid var(--line);border-radius:10px;padding:10px 12px;font:inherit}input:focus,select:focus{outline:3px solid #173a6720;border-color:var(--brand)}button{margin-top:24px;border:0;background:var(--brand);color:#fff;font-weight:750;cursor:pointer}button:disabled{opacity:.6;cursor:wait}.hint{font-size:.85rem}.status{min-height:24px;margin-top:14px;font-weight:650}.success{color:var(--ok)}.error{color:var(--danger)}footer{margin-top:30px;color:var(--muted);font-size:.78rem;text-align:center}
+    :root { --ink:#14223a; --muted:#536174; --paper:#fff; --canvas:#f3f6fa; --line:#d9e1ec; --brand:#173a67; --ok:#087443; --danger:#b3261e; } *{box-sizing:border-box} body{margin:0;background:var(--canvas);color:var(--ink);font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}.wrap{max-width:640px;margin:auto;padding:max(24px,env(safe-area-inset-top)) 16px calc(48px + env(safe-area-inset-bottom))}.back{display:inline-flex;align-items:center;min-height:44px;color:var(--brand);font-weight:700;text-decoration:none}h1{margin:20px 0 6px;color:var(--brand);font-size:1.8rem}p{color:var(--muted)}form{margin-top:22px;padding:22px;border:1px solid var(--line);border-radius:14px;background:var(--paper);box-shadow:0 2px 8px #14223a0a}label{display:block;margin:16px 0 6px;font-weight:700}input,select,button{width:100%;min-height:50px;border:1px solid var(--line);border-radius:10px;padding:10px 12px;font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}input:focus,select:focus{outline:3px solid #173a6720;border-color:var(--brand)}button{min-height:56px;margin-top:24px;border:0;background:var(--brand);color:#fff;font-weight:750;cursor:pointer}button:disabled{opacity:.6;cursor:wait}.hint{font-size:.85rem}.status{min-height:24px;margin-top:14px;font-weight:650}.success{color:var(--ok)}.error{color:var(--danger)}footer{margin-top:30px;color:var(--muted);font-size:.78rem;text-align:center}@media (max-width:600px){.wrap{padding-left:12px;padding-right:12px}h1{font-size:1.65rem}form{margin-top:18px;padding:18px}.back{min-height:48px}label{margin-top:18px}}
   </style>
 </head>
 <body>
@@ -29,7 +29,7 @@
       <button id="submit" type="submit">Salvar cadastro</button>
       <p id="status" class="status" aria-live="polite"></p>
     </form>
-    <footer>Operação interna v0.3.2 • Developed by AK Labs</footer>
+    <footer>Operação interna v0.3.3 • Developed by AK Labs</footer>
   </main>
   <script>
     const locationsInput = document.querySelector('#location');
