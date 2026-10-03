@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.4.5 - 2026-10-03
+
+- Integração total dos locais de fiscalização (Escola Guarani, Escola Irmão Miguel, Harmonia / Luterano, Fiscais Volantes) como cards oficiais com seus respectivos endereços e fiscais escalados.
+- Remoção definitiva da caixa de alerta de locais a confirmar.
+
 ## 0.4.4 - 2026-10-03
 
 - Remoção do botão de admin e de botões de cadastro da página pública, mantendo apenas a exibição limpa do local, endereço, seções e fiscais alocados.
