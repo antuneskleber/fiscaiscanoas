@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.2 - 2026-10-03
+
+- Preparação da base D1 para publicação no Cloudflare, com migração versionada e telemetria do Worker habilitada.
+
 ## 0.3.1 - 2026-10-03
 
 - Inclusão de quatro cadastros adicionais, todos vinculados a locais oficiais.

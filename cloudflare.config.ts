@@ -5,6 +5,10 @@ export default defineConfig({
 		name: "fiscaiscanoas",
 		compatibilityDate: "2026-10-03",
 		entrypoint: "cloudflare/worker.js",
+		observability: {
+			enabled: true,
+			traces: { enabled: true },
+		},
 		env: {
 			DB: bindings.d1({
 				name: "fiscaiscanoas-db",

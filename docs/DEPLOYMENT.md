@@ -1,18 +1,21 @@
-# Publicação com banco de dados
+# Publicação no Cloudflare
 
-O GitHub Pages não é adequado para esta versão, porque ele não executa a API nem hospeda a base SQLite. Publique o contêiner em um serviço com volume persistente e HTTPS.
+A versão hospedada usa Cloudflare Workers para a API e Cloudflare D1 para os cadastros. O banco local SQLite e qualquer arquivo de segredo não devem ser enviados ao Git.
 
-## Requisitos
+## Pré-requisitos
 
-- Variável `FISCAIS_ADMIN_TOKEN` com uma chave administrativa forte.
-- Volume persistente montado em `/app/backend/storage`.
-- Proxy HTTPS na frente da aplicação.
+- Conta Cloudflare autenticada pelo perfil de CLI ativo.
+- Base D1 vinculada como `DB` em `wrangler.jsonc` e `cloudflare.config.ts`.
+- Um arquivo `.env` local e ignorado pelo Git com `ADMIN_TOKEN=<chave forte>`.
 
-## Execução com contêiner
+## Fluxo de publicação
 
-```text
-docker build -t fiscaiscanoas .
-docker run -p 8000:8000 -e FISCAIS_ADMIN_TOKEN=troque-esta-chave -v fiscaiscanoas-data:/app/backend/storage fiscaiscanoas
-```
+1. Aplique as migrações de `migrations/` na base D1 vinculada.
+2. Rode a validação local: `python tests/validate_data.py` e `python tests/validate_backend.py`.
+3. Faça uma simulação: `wrangler deploy --dry-run`.
+4. Publique com `wrangler deploy --secrets-file <arquivo-env>`.
+5. Verifique `/`, `/api/locations` e a proteção de `POST /api/assignments`.
+
+A chave administrativa é obrigatória para gravar ou editar cadastros e nunca deve ser disponibilizada no link público.
 
 Developed by AK Labs
