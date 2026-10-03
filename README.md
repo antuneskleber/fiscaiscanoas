@@ -14,15 +14,15 @@ Coordenações eleitorais, fiscais, delegados de prédio e equipes de operação
 
 ## Stack
 
-Site estático em HTML, CSS e JavaScript. Os dados publicados ficam em `frontend/public/data.json`.
+Frontend em HTML, CSS e JavaScript e API em Python sem dependências externas. A base SQLite é criada em `backend/storage/fiscaiscanoas.sqlite3` e é ignorada pelo Git por conter contatos pessoais.
 
 ## Arquitetura
 
-O frontend não tem dependências e carrega uma base JSON estática. O GitHub Actions publica somente `frontend/public` no GitHub Pages.
+O servidor inicializa a base a partir de `frontend/public/data.json`, entrega a consulta pública e recebe os cadastros administrativos. A consulta nunca retorna nomes ou telefones cadastrados; ela mostra apenas a quantidade de fiscais por local. A publicação requer hospedagem de aplicação com volume persistente; GitHub Pages não executa esta API.
 
 ## Execução local
 
-Abra a pasta `frontend/public` em um servidor HTTP estático, por exemplo `python -m http.server`, e acesse a porta informada.
+Execute `python backend/app.py` e acesse `http://127.0.0.1:8000`. Para operação fora da máquina local, defina `FISCAIS_ADMIN_TOKEN` e publique atrás de HTTPS; sem esse token, novos cadastros são aceitos somente por localhost. Veja `docs/DEPLOYMENT.md` para a publicação em contêiner.
 
 ## Roadmap inicial
 

@@ -26,11 +26,14 @@
     .section { padding:4px 8px; border-radius:6px; background:var(--tag); color:#244a7b; font-size:.82rem; font-weight:700; }
     .section.hit { background:var(--brand); color:#fff; }
     .empty { padding:44px 16px; color:var(--muted); text-align:center; }
+    .nav { display:flex; justify-content:flex-end; margin-bottom:16px; }.nav a { color:var(--brand); font-weight:750; text-decoration:none; }
+    .coverage { margin-top:11px; color:var(--muted); font-size:.83rem; }
     footer { margin-top:30px; color:var(--muted); font-size:.78rem; text-align:center; }
   </style>
 </head>
 <body>
   <main class="wrap">
+    <nav class="nav"><a href="/admin.html">Cadastrar fiscal</a></nav>
     <header>
       <h1>Locais e Seções Eleitorais</h1>
       <p>Canoas — 66ª e 134ª Zonas Eleitorais</p>
@@ -41,7 +44,7 @@
     </div>
     <p class="meta" id="meta" aria-live="polite">Carregando locais…</p>
     <section id="results" aria-live="polite"></section>
-    <footer>Consulta operacional v0.1.0 • Dados fornecidos pela coordenação • Developed by AK Labs</footer>
+    <footer>Consulta operacional v0.2.0 • Dados fornecidos pela coordenação • Developed by AK Labs</footer>
   </main>
   <script>
     const normalize = value => value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
@@ -63,11 +66,12 @@
           <div class="title">${escapeHtml(location.name)}</div>
           <div class="details">${escapeHtml(location.address)} • ${escapeHtml(location.zone)}ª Zona • Página ${location.pages.join('/')}</div>
           <div class="sections">${location.sections.map(section => `<span class="section ${sectionSearch && section === Number(query) ? 'hit' : ''}">${section}</span>`).join('')}</div>
+          <div class="coverage">${location.registered_count || 0} fiscal(is) cadastrado(s) neste local</div>
         </article>`).join('') : '<p class="empty">Nenhum local encontrado. Tente outro nome, bairro ou número de seção.</p>';
     }
 
     input.addEventListener('input', render);
-    fetch('./data.json')
+    fetch('/api/locations')
       .then(response => response.ok ? response.json() : Promise.reject(new Error('Falha ao carregar os dados.')))
       .then(data => { locations = data; render(); })
       .catch(() => { meta.textContent = 'Não foi possível carregar a lista de locais.'; });

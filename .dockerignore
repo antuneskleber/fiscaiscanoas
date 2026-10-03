@@ -1,0 +1,7 @@
+.git
+backend/storage
+release
+tests
+docs
+notes
+build
