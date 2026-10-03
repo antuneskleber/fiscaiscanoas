@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.1 - 2026-10-03
+
+- Migração da publicação e da base D1 para a conta AKLabs, em `fiscaiscanoas.aklabs.workers.dev`.
+
 ## 0.4.0 - 2026-10-03
 
 - Busca pública por local ou nome do fiscal, mostrando local, contato e situação da seção.

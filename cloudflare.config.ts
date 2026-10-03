@@ -12,7 +12,7 @@ export default defineConfig({
 		env: {
 			DB: bindings.d1({
 				name: "fiscaiscanoas-db",
-				id: "8ec1b0db-4d9c-45dc-b18a-15b694b18e94",
+				id: "ca80d17d-169a-48a6-b5e2-6c6bbe346af2",
 			}),
 			ASSETS: bindings.assets(),
 		},

@@ -24,7 +24,7 @@ As seções ainda não foram definidas: os novos cadastros ficam associados ao l
 
 ## Execução local
 
-Para execução local, use `python backend/app.py` e acesse `http://127.0.0.1:8000`. A publicação atual está em `https://fiscaiscanoas.formanditonoenem.workers.dev`; para novos deploys, use o fluxo descrito em `docs/DEPLOYMENT.md`.
+Para execução local, use `python backend/app.py` e acesse `http://127.0.0.1:8000`. A publicação atual está em `https://fiscaiscanoas.aklabs.workers.dev`; para novos deploys, use o fluxo descrito em `docs/DEPLOYMENT.md`.
 
 ## Roadmap inicial
 

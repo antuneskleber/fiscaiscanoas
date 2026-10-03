@@ -8,5 +8,5 @@
     "traces": { "enabled": true }
   },
   "assets": { "directory": "./frontend/public", "binding": "ASSETS" },
-  "d1_databases": [{ "binding": "DB", "database_name": "fiscaiscanoas-db", "database_id": "8ec1b0db-4d9c-45dc-b18a-15b694b18e94" }]
+  "d1_databases": [{ "binding": "DB", "database_name": "fiscaiscanoas-db", "database_id": "ca80d17d-169a-48a6-b5e2-6c6bbe346af2" }]
 }
