@@ -19,15 +19,15 @@
       <input id="location" list="locations" autocomplete="off" required placeholder="Comece a digitar o nome do local">
       <datalist id="locations"></datalist>
       <label for="section">Seção</label>
-      <select id="section" required disabled><option>Escolha primeiro o local</option></select>
+      <select id="section" disabled><option>Escolha primeiro o local</option></select>
       <label for="name">Nome</label>
       <input id="name" autocomplete="name" required minlength="3" placeholder="Nome completo">
       <label for="phone">Telefone</label>
-      <input id="phone" autocomplete="tel" inputmode="tel" required placeholder="(51) 99999-9999">
+      <input id="phone" autocomplete="tel" inputmode="tel" placeholder="(51) 99999-9999">
       <button id="submit" type="submit">Salvar cadastro</button>
       <p id="status" class="status" aria-live="polite"></p>
     </form>
-    <footer>Operação interna v0.2.0 • Developed by AK Labs</footer>
+    <footer>Operação interna v0.3.0 • Developed by AK Labs</footer>
   </main>
   <script>
     const locationsInput = document.querySelector('#location');
@@ -48,13 +48,13 @@
     locationsInput.addEventListener('input', () => {
       const location = selectedLocation();
       sectionSelect.disabled = !location;
-      sectionSelect.innerHTML = location ? `<option value="">Selecione a seção</option>${location.sections.map(section => `<option value="${section}">${section}</option>`).join('')}` : '<option>Escolha primeiro o local</option>';
+      sectionSelect.innerHTML = location ? `<option value="">Seção não informada</option>${location.sections.map(section => `<option value="${section}">${section}</option>`).join('')}` : '<option>Escolha primeiro o local</option>';
     });
 
     form.addEventListener('submit', async event => {
       event.preventDefault();
       const location = selectedLocation();
-      if (!location || !sectionSelect.value) return message('Selecione um local e uma seção válidos.', 'error');
+      if (!location) return message('Selecione um local válido.', 'error');
       submit.disabled = true;
       message('Salvando cadastro…');
       try {

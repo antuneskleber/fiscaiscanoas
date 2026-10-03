@@ -17,5 +17,7 @@ with tempfile.TemporaryDirectory() as directory:
     })
     assert result["message"] == "Fiscal cadastrado com sucesso."
     assert next(record for record in database.locations() if record["id"] == first["id"])["registered_count"] == 1
+    result = database.create_assignment({"source_local": "Local pendente", "name": "Cadastro sem seção", "phone": ""})
+    assert result["message"] == "Fiscal cadastrado com sucesso."
 
 print("Validated SQLite seed, assignment validation, and privacy-safe public count.")

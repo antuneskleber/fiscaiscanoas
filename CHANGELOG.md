@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.0 - 2026-10-03
+
+- Importação de lista existente de fiscais para a base operacional.
+- Cadastro passa a aceitar seção e telefone não informados, preservando registros que precisam de revisão.
+- Vínculo de dados incompletos ao local fica opcional, evitando associação automática incorreta.
+
 ## 0.2.0 - 2026-10-03
 
 - Cadastro operacional de fiscal com local, seção, nome e telefone.

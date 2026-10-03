@@ -20,6 +20,8 @@ Frontend em HTML, CSS e JavaScript e API em Python sem dependências externas. A
 
 O servidor inicializa a base a partir de `frontend/public/data.json`, entrega a consulta pública e recebe os cadastros administrativos. A consulta nunca retorna nomes ou telefones cadastrados; ela mostra apenas a quantidade de fiscais por local. A publicação requer hospedagem de aplicação com volume persistente; GitHub Pages não executa esta API.
 
+Registros sem seção ou local confirmado são preservados para revisão, mas não são contabilizados publicamente até receberem um vínculo válido.
+
 ## Execução local
 
 Execute `python backend/app.py` e acesse `http://127.0.0.1:8000`. Para operação fora da máquina local, defina `FISCAIS_ADMIN_TOKEN` e publique atrás de HTTPS; sem esse token, novos cadastros são aceitos somente por localhost. Veja `docs/DEPLOYMENT.md` para a publicação em contêiner.

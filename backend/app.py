@@ -19,7 +19,7 @@ MAX_BODY_BYTES = 8_192
 
 
 class Application(BaseHTTPRequestHandler):
-    server_version = "FiscaisCanoas/0.2.0"
+    server_version = "FiscaisCanoas/0.3.0"
 
     def log_message(self, format, *args):
         print(f"{self.client_address[0]} - {format % args}")
