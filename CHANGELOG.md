@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.4.3 - 2026-10-03
+
+- Implementação do Painel Administrativo completo em `/admin.html` com métricas, gestão de fiscais (edição, exclusão), filtros em tempo real e exportação (CSV e WhatsApp).
+- Adicionados endpoints REST para atualização (PUT) e exclusão (DELETE) de fiscais no Cloudflare Worker.
+
 ## 0.4.2 - 2026-10-03
 
 - Exibição direta dos fiscais, nomes, contatos e botões de chamada/WhatsApp em cada card de escola.

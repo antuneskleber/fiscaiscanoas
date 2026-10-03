@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#173a67">
-  <title>Cadastrar Fiscal | Fiscais Canoas</title>
+  <title>Painel Administrativo | Fiscais Canoas</title>
   <style>
     :root {
       --ink: #14223a;
@@ -13,93 +13,256 @@
       --canvas: #f3f6fa;
       --line: #d9e1ec;
       --brand: #173a67;
+      --brand-hover: #0f2747;
+      --brand-light: #244a7b;
+      --tag: #e8f0fb;
       --ok: #087443;
+      --ok-bg: #e6f7ec;
+      --ok-border: #a3e0be;
+      --warn: #8c5500;
+      --warn-bg: #fff8e8;
+      --warn-border: #f7d488;
       --danger: #b3261e;
+      --danger-bg: #fdf2f2;
+      --wa-bg: #25d366;
+      --wa-hover: #1ebb5b;
     }
     * { box-sizing: border-box; }
     body { margin: 0; background: var(--canvas); color: var(--ink); font: 16px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
-    .wrap { max-width: 640px; margin: auto; padding: max(24px, env(safe-area-inset-top)) 16px calc(48px + env(safe-area-inset-bottom)); }
-    .back { display: inline-flex; align-items: center; min-height: 44px; color: var(--brand); font-weight: 750; text-decoration: none; }
-    .back:hover { text-decoration: underline; }
-    h1 { margin: 16px 0 6px; color: var(--brand); font-size: 1.8rem; font-weight: 800; }
-    p { color: var(--muted); margin: 0 0 18px; }
-    form { margin-top: 14px; padding: 22px; border: 1px solid var(--line); border-radius: 14px; background: var(--paper); box-shadow: 0 2px 8px #14223a0a; }
-    label { display: block; margin: 16px 0 6px; font-weight: 700; font-size: 0.95rem; }
-    label:first-of-type { margin-top: 0; }
-    input, select, button { width: 100%; min-height: 52px; border: 1.5px solid var(--line); border-radius: 10px; padding: 12px 14px; font: 16px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
-    input:focus, select:focus { outline: 3px solid #173a6720; border-color: var(--brand); }
-    button { min-height: 56px; margin-top: 24px; border: 0; background: var(--brand); color: #fff; font-weight: 750; cursor: pointer; transition: opacity 0.15s ease; border-radius: 10px; }
-    button:hover { opacity: 0.92; }
-    button:disabled { opacity: 0.6; cursor: wait; }
-    .hint { font-size: 0.82rem; color: var(--muted); margin-top: 4px; }
-    .status { min-height: 24px; margin-top: 16px; font-weight: 650; }
-    .success { color: var(--ok); }
-    .error { color: var(--danger); }
-    footer { margin-top: 30px; color: var(--muted); font-size: 0.78rem; text-align: center; }
-    @media (max-width: 600px) {
-      .wrap { padding-left: 12px; padding-right: 12px; }
-      h1 { font-size: 1.6rem; }
-      form { padding: 18px; }
+    .wrap { max-width: 900px; margin: auto; padding: max(20px, env(safe-area-inset-top)) 16px calc(56px + env(safe-area-inset-bottom)); }
+
+    /* Top Bar */
+    .top-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .back-link { display: inline-flex; align-items: center; gap: 6px; color: var(--brand); font-weight: 750; font-size: 0.92rem; text-decoration: none; padding: 6px 0; }
+    .back-link:hover { text-decoration: underline; }
+    .admin-badge { padding: 4px 10px; border-radius: 6px; background: var(--brand); color: #fff; font-size: 0.78rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; }
+
+    header { margin-bottom: 22px; }
+    h1 { margin: 0 0 6px; color: var(--brand); font-size: clamp(1.6rem, 4vw, 2.1rem); font-weight: 800; letter-spacing: -0.025em; }
+    header p { margin: 0; color: var(--muted); font-size: 0.98rem; }
+
+    /* Metrics Grid */
+    .metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 24px; }
+    .metric-card { padding: 16px 18px; border-radius: 14px; background: var(--paper); border: 1px solid var(--line); box-shadow: 0 2px 7px #14223a08; }
+    .metric-val { font-size: 1.8rem; font-weight: 850; color: var(--brand); line-height: 1.1; }
+    .metric-val.ok { color: var(--ok); }
+    .metric-val.warn { color: var(--warn); }
+    .metric-label { font-size: 0.83rem; font-weight: 650; color: var(--muted); margin-top: 4px; }
+
+    /* Form Card */
+    .form-card { padding: 22px; border-radius: 16px; background: var(--paper); border: 1.5px solid var(--line); box-shadow: 0 2px 10px #14223a0a; margin-bottom: 30px; }
+    .form-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .form-title { font-size: 1.2rem; font-weight: 800; color: var(--brand); margin: 0; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media (max-width: 650px) { .form-grid { grid-template-columns: 1fr; } }
+    .form-col-full { grid-column: 1 / -1; }
+
+    label { display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.9rem; color: var(--ink); }
+    input { width: 100%; min-height: 48px; border: 1.5px solid var(--line); border-radius: 10px; padding: 10px 14px; font: inherit; font-size: 15px; color: var(--ink); background: #ffffff; }
+    input:focus { outline: 3px solid #173a6720; border-color: var(--brand); }
+    .hint { font-size: 0.78rem; color: var(--muted); margin-top: 4px; }
+
+    .form-actions { display: flex; gap: 10px; align-items: center; margin-top: 20px; }
+    .btn-submit { flex: 1; min-height: 50px; border: 0; border-radius: 10px; background: var(--brand); color: #fff; font: inherit; font-weight: 750; font-size: 1rem; cursor: pointer; transition: background 0.15s; }
+    .btn-submit:hover { background: var(--brand-hover); }
+    .btn-submit:disabled { opacity: 0.6; cursor: wait; }
+    .btn-cancel { min-height: 50px; padding: 0 20px; border: 1.5px solid var(--line); border-radius: 10px; background: var(--paper); color: var(--muted); font: inherit; font-weight: 700; cursor: pointer; display: none; }
+
+    .status-msg { min-height: 24px; margin-top: 12px; font-weight: 650; font-size: 0.92rem; }
+    .status-msg.success { color: var(--ok); }
+    .status-msg.error { color: var(--danger); }
+
+    /* Management Section */
+    .mgmt-card { padding: 22px; border-radius: 16px; background: var(--paper); border: 1px solid var(--line); box-shadow: 0 2px 10px #14223a0a; }
+    .mgmt-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 16px; }
+    .mgmt-title { font-size: 1.25rem; font-weight: 800; color: var(--brand); margin: 0; }
+    
+    .export-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+    .btn-tool { display: inline-flex; align-items: center; gap: 5px; min-height: 38px; padding: 6px 13px; border: 1px solid var(--line); border-radius: 8px; background: var(--paper); color: var(--brand); font-size: 0.85rem; font-weight: 700; cursor: pointer; text-decoration: none; transition: all 0.15s; }
+    .btn-tool:hover { background: #f0f4fa; border-color: var(--brand); }
+
+    /* Search & Filter within Admin */
+    .mgmt-controls { display: grid; grid-template-columns: 1fr auto; gap: 10px; margin-bottom: 16px; }
+    @media (max-width: 600px) { .mgmt-controls { grid-template-columns: 1fr; } }
+    .filter-pills { display: flex; gap: 6px; overflow-x: auto; padding: 2px; }
+    .pill-btn { padding: 6px 12px; border: 1px solid var(--line); border-radius: 20px; background: var(--paper); color: var(--muted); font: inherit; font-size: 0.82rem; font-weight: 700; cursor: pointer; white-space: nowrap; }
+    .pill-btn.active { background: var(--brand); border-color: var(--brand); color: #fff; }
+
+    /* Table / List */
+    .fiscal-table { display: grid; gap: 8px; }
+    .fiscal-card-admin { display: flex; justify-content: space-between; align-items: center; gap: 14px; padding: 14px 16px; border: 1px solid var(--line); border-radius: 12px; background: #ffffff; transition: border-color 0.15s; }
+    .fiscal-card-admin:hover { border-color: #bccbdf; }
+    @media (max-width: 650px) {
+      .fiscal-card-admin { flex-direction: column; align-items: stretch; gap: 12px; }
     }
+
+    .f-main { min-width: 0; }
+    .f-name { font-size: 1.05rem; font-weight: 800; color: var(--ink); }
+    .f-loc { font-size: 0.88rem; color: var(--brand-light); font-weight: 650; margin-top: 3px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .f-badge { display: inline-block; padding: 2px 7px; border-radius: 6px; font-size: 0.75rem; font-weight: 750; }
+    .f-badge.official { background: var(--ok-bg); color: var(--ok); }
+    .f-badge.pending { background: var(--warn-bg); color: var(--warn); }
+    .f-section { font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
+
+    .f-actions { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; flex-shrink: 0; }
+    .btn-act { display: inline-flex; align-items: center; justify-content: center; min-height: 36px; padding: 6px 10px; border-radius: 8px; font-size: 0.82rem; font-weight: 750; text-decoration: none; border: 1px solid var(--line); background: #ffffff; color: var(--ink); cursor: pointer; transition: all 0.12s; }
+    .btn-act:hover { background: #f1f5f9; }
+    .btn-act.wa { background: var(--wa-bg); color: #ffffff; border-color: #1ebb5b; }
+    .btn-act.wa:hover { background: var(--wa-hover); }
+    .btn-act.edit { color: var(--brand); border-color: #ccd7e6; }
+    .btn-act.edit:hover { background: #e8f0fb; }
+    .btn-act.del { color: var(--danger); border-color: #f5c2c0; }
+    .btn-act.del:hover { background: var(--danger-bg); }
+
+    .empty-msg { text-align: center; padding: 36px 16px; color: var(--muted); font-size: 0.95rem; }
+    footer { margin-top: 36px; color: var(--muted); font-size: 0.8rem; text-align: center; }
   </style>
 </head>
 <body>
   <main class="wrap">
-    <a class="back" href="/">← Voltar à lista de locais</a>
-    <h1>Cadastrar Fiscal</h1>
-    <p>Informe o local, o nome e o telefone com DDD. O fiscal ficará visível imediatamente na lista.</p>
-    
-    <form id="form">
-      <label for="location">Local de Votação (Escola)</label>
-      <input id="location" list="locations-list" autocomplete="organization" required minlength="3" placeholder="Selecione ou digite o nome da escola">
-      <datalist id="locations-list"></datalist>
-      <div class="hint">Escolha uma escola da lista oficial de Canoas ou digite o nome.</div>
+    <nav class="top-nav">
+      <a class="back-link" href="/">← Voltar à Consulta Pública</a>
+      <span class="admin-badge">Painel Admin</span>
+    </nav>
 
-      <label for="name">Nome Completo do Fiscal</label>
-      <input id="name" autocomplete="name" required minlength="3" placeholder="Nome do fiscal">
+    <header>
+      <h1>Gestão de Fiscais Eleitorais</h1>
+      <p>Gerencie o cadastro, a alocação por escola e os contatos de toda a equipe de fiscais de Canoas.</p>
+    </header>
 
-      <label for="phone">Telefone / WhatsApp</label>
-      <input id="phone" type="tel" autocomplete="tel" inputmode="tel" required placeholder="(51) 99999-9999">
-      <div class="hint">Usado para contato direto e link do WhatsApp.</div>
+    <!-- Resumo Operacional -->
+    <section class="metrics">
+      <div class="metric-card">
+        <div class="metric-val" id="metricTotal">0</div>
+        <div class="metric-label">Fiscais Cadastrados</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-val ok" id="metricCovered">0 / 87</div>
+        <div class="metric-label">Escolas com Fiscal</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-val warn" id="metricUncovered">0</div>
+        <div class="metric-label">Escolas Sem Fiscal</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-val warn" id="metricPending">0</div>
+        <div class="metric-label">A Confirmar Escola</div>
+      </div>
+    </section>
 
-      <button id="submit" type="submit">Salvar Cadastro</button>
-      <p id="status" class="status" aria-live="polite"></p>
-    </form>
+    <!-- Formulário de Cadastro e Edição -->
+    <section class="form-card" id="formCard">
+      <div class="form-header">
+        <h2 class="form-title" id="formTitle">➕ Cadastrar Novo Fiscal</h2>
+      </div>
 
-    <footer>Cadastro público v0.4.2 • Developed by AK Labs</footer>
+      <form id="fiscalForm">
+        <input type="hidden" id="editId" value="">
+
+        <div class="form-grid">
+          <div class="form-col-full">
+            <label for="locationInput">Local de Votação (Escola) *</label>
+            <input id="locationInput" list="locations-list" required placeholder="Digite ou selecione a escola na lista oficial">
+            <datalist id="locations-list"></datalist>
+            <div class="hint">Digite as primeiras letras para autocompletar uma das 87 escolas de Canoas.</div>
+          </div>
+
+          <div>
+            <label for="nameInput">Nome Completo do Fiscal *</label>
+            <input id="nameInput" required placeholder="Ex.: Maria da Silva">
+          </div>
+
+          <div>
+            <label for="phoneInput">Telefone / WhatsApp *</label>
+            <input id="phoneInput" type="tel" required placeholder="(51) 99999-9999">
+          </div>
+
+          <div>
+            <label for="sectionInput">Seção Específica (Opcional)</label>
+            <input id="sectionInput" type="number" placeholder="Ex.: 42 (deixe vazio se fiscal geral)">
+            <div class="hint">Se deixado em branco, será considerado Fiscal de Local Geral.</div>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn-submit" id="submitBtn">Salvar Fiscal</button>
+          <button type="button" class="btn-cancel" id="cancelEditBtn">Cancelar Edição</button>
+        </div>
+        <div class="status-msg" id="formStatus" aria-live="polite"></div>
+      </form>
+    </section>
+
+    <!-- Tabela Geral de Gerenciamento -->
+    <section class="mgmt-card">
+      <div class="mgmt-header">
+        <h2 class="mgmt-title">📋 Fiscais Cadastrados (<span id="tableCount">0</span>)</h2>
+        <div class="export-btns">
+          <button type="button" class="btn-tool" id="btnExportCsv">📥 Exportar CSV</button>
+          <button type="button" class="btn-tool" id="btnCopyWa">💬 Copiar p/ WhatsApp</button>
+        </div>
+      </div>
+
+      <div class="mgmt-controls">
+        <input type="search" id="searchFiscal" placeholder="Filtrar por nome, telefone, escola ou seção...">
+        <div class="filter-pills">
+          <button type="button" class="pill-btn active" data-filter="all">Todos</button>
+          <button type="button" class="pill-btn" data-filter="official">Escolas Oficiais</button>
+          <button type="button" class="pill-btn" data-filter="pending">A Confirmar</button>
+        </div>
+      </div>
+
+      <div class="fiscal-table" id="fiscalTable">
+        <div class="empty-msg">Carregando lista de fiscais…</div>
+      </div>
+    </section>
+
+    <footer>Painel Administrativo v0.4.3 • Developed by AK Labs</footer>
   </main>
 
   <script>
-    const locationsInput = document.querySelector('#location');
-    const locationsDatalist = document.querySelector('#locations-list');
-    const nameInput = document.querySelector('#name');
-    const phoneInput = document.querySelector('#phone');
-    const form = document.querySelector('#form');
-    const submit = document.querySelector('#submit');
-    const status = document.querySelector('#status');
+    const normalize = value => String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+    const escapeHtml = value => String(value || '').replace(/[&<>'"]/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[char]));
 
-    const message = (text, type = '') => {
-      status.textContent = text;
-      status.className = `status ${type}`;
+    // Elementos DOM
+    const form = document.querySelector('#fiscalForm');
+    const formTitle = document.querySelector('#formTitle');
+    const editIdInput = document.querySelector('#editId');
+    const locationInput = document.querySelector('#locationInput');
+    const locationsDatalist = document.querySelector('#locations-list');
+    const nameInput = document.querySelector('#nameInput');
+    const phoneInput = document.querySelector('#phoneInput');
+    const sectionInput = document.querySelector('#sectionInput');
+    const submitBtn = document.querySelector('#submitBtn');
+    const cancelEditBtn = document.querySelector('#cancelEditBtn');
+    const formStatus = document.querySelector('#formStatus');
+    const formCard = document.querySelector('#formCard');
+
+    const searchInput = document.querySelector('#searchFiscal');
+    const pillBtns = document.querySelectorAll('.pill-btn');
+    const fiscalTable = document.querySelector('#fiscalTable');
+    const tableCount = document.querySelector('#tableCount');
+
+    let locations = [];
+    let fiscals = [];
+    let officialLocMap = new Set();
+    let currentFilter = 'all';
+
+    const formatPhone = value => {
+      const digits = String(value || '').replace(/\D/g, '');
+      if (digits.length === 11) return `(${digits.slice(0,2)}) ${digits.slice(2,7)}-${digits.slice(7)}`;
+      if (digits.length === 10) return `(${digits.slice(0,2)}) ${digits.slice(2,6)}-${digits.slice(6)}`;
+      return value || '';
     };
 
-    // Preenche com query param ?location=... se fornecido
-    const params = new URLSearchParams(window.location.search);
-    const preLocation = params.get('location');
-    if (preLocation) {
-      locationsInput.value = preLocation;
-      nameInput.focus();
-    }
+    const getWhatsAppUrl = (phone, name, loc) => {
+      let digits = String(phone || '').replace(/\D/g, '');
+      if (!digits || digits.length < 10) return '';
+      if (!digits.startsWith('55')) digits = '55' + digits;
+      const msg = `Olá ${name}, sou da coordenação dos fiscais de Canoas (${loc}).`;
+      return `https://wa.me/${digits}?text=${encodeURIComponent(msg)}`;
+    };
 
-    // Carrega escolas para o autocomplete
-    fetch('/data.json')
-      .then(res => res.ok ? res.json() : [])
-      .then(locs => {
-        locationsDatalist.innerHTML = locs.map(l => `<option value="${l.name}">${l.address}</option>`).join('');
-      })
-      .catch(() => {});
-
-    // Máscara de telefone amigável
+    // Máscara de telefone
     phoneInput.addEventListener('input', e => {
       let v = e.target.value.replace(/\D/g, '');
       if (v.length > 11) v = v.slice(0, 11);
@@ -113,39 +276,267 @@
       e.target.value = v;
     });
 
+    function setFormStatus(text, type = '') {
+      formStatus.textContent = text;
+      formStatus.className = `status-msg ${type}`;
+    }
+
+    function isOfficialLocation(locName) {
+      const norm = normalize(locName);
+      if (officialLocMap.has(norm)) return true;
+      for (const item of officialLocMap) {
+        if (norm.length >= 5 && (item.includes(norm) || norm.includes(item))) return true;
+      }
+      return false;
+    }
+
+    function updateMetrics() {
+      document.querySelector('#metricTotal').textContent = fiscals.length;
+
+      // Locais cobertos
+      const covered = new Set();
+      let pendingCount = 0;
+
+      fiscals.forEach(f => {
+        const fn = normalize(f.location_name);
+        let found = false;
+        for (const loc of locations) {
+          const ln = normalize(loc.name);
+          if (ln === fn || (fn.length >= 5 && (ln.includes(fn) || fn.includes(ln)))) {
+            covered.add(loc.name);
+            found = true;
+            break;
+          }
+        }
+        if (!found) pendingCount++;
+      });
+
+      document.querySelector('#metricCovered').textContent = `${covered.size} / ${locations.length}`;
+      document.querySelector('#metricUncovered').textContent = locations.length - covered.size;
+      document.querySelector('#metricPending').textContent = pendingCount;
+    }
+
+    function renderTable() {
+      const query = normalize(searchInput.value.trim());
+
+      const filtered = fiscals.filter(f => {
+        const isOff = isOfficialLocation(f.location_name);
+        if (currentFilter === 'official' && !isOff) return false;
+        if (currentFilter === 'pending' && isOff) return false;
+
+        if (!query) return true;
+        return [f.name, f.phone, f.location_name, String(f.section || '')]
+          .some(v => normalize(v).includes(query));
+      });
+
+      tableCount.textContent = filtered.length;
+
+      if (!filtered.length) {
+        fiscalTable.innerHTML = '<div class="empty-msg">Nenhum fiscal encontrado com os filtros atuais.</div>';
+        return;
+      }
+
+      fiscalTable.innerHTML = filtered.map(f => {
+        const isOff = isOfficialLocation(f.location_name);
+        const digits = String(f.phone || '').replace(/\D/g, '');
+        const phoneFmt = formatPhone(f.phone);
+        const waUrl = getWhatsAppUrl(f.phone, f.name, f.location_name);
+        const sectionText = f.section ? `Seção ${f.section}` : 'Fiscal de Local (Geral)';
+
+        return `
+          <div class="fiscal-card-admin" id="fiscal-${f.id}">
+            <div class="f-main">
+              <div class="f-name">${escapeHtml(f.name)}</div>
+              <div class="f-loc">
+                <span>📍 ${escapeHtml(f.location_name)}</span>
+                <span class="f-badge ${isOff ? 'official' : 'pending'}">${isOff ? 'Oficial' : 'A Confirmar'}</span>
+              </div>
+              <div class="f-section">${sectionText}</div>
+            </div>
+            <div class="f-actions">
+              ${digits ? `<a href="tel:${digits}" class="btn-act" title="Ligar">📞 ${escapeHtml(phoneFmt)}</a>` : ''}
+              ${waUrl ? `<a href="${waUrl}" target="_blank" rel="noopener" class="btn-act wa" title="WhatsApp">💬 WhatsApp</a>` : ''}
+              <button type="button" class="btn-act edit" onclick="startEdit(${f.id})">✏️ Editar</button>
+              <button type="button" class="btn-act del" onclick="deleteFiscal(${f.id}, '${escapeHtml(f.name).replace(/'/g, "\\'")}')">🗑️ Excluir</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    window.startEdit = function(id) {
+      const fiscal = fiscals.find(f => f.id === id);
+      if (!fiscal) return;
+
+      editIdInput.value = fiscal.id;
+      locationInput.value = fiscal.location_name;
+      nameInput.value = fiscal.name;
+      phoneInput.value = formatPhone(fiscal.phone);
+      sectionInput.value = fiscal.section || '';
+
+      formTitle.textContent = `✏️ Editando Fiscal: ${fiscal.name}`;
+      submitBtn.textContent = 'Salvar Alterações';
+      cancelEditBtn.style.display = 'inline-block';
+      setFormStatus('');
+
+      formCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      nameInput.focus();
+    };
+
+    window.cancelEdit = function() {
+      editIdInput.value = '';
+      form.reset();
+      formTitle.textContent = '➕ Cadastrar Novo Fiscal';
+      submitBtn.textContent = 'Salvar Fiscal';
+      cancelEditBtn.style.display = 'none';
+      setFormStatus('');
+    };
+
+    cancelEditBtn.addEventListener('click', cancelEdit);
+
+    window.deleteFiscal = async function(id, name) {
+      if (!confirm(`Tem certeza que deseja remover o cadastro de "${name}"?`)) return;
+
+      try {
+        const res = await fetch(`/api/assignments?id=${id}`, { method: 'DELETE' });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Erro ao remover fiscal.');
+
+        fiscals = fiscals.filter(f => f.id !== id);
+        updateMetrics();
+        renderTable();
+      } catch (err) {
+        alert(err.message);
+      }
+    };
+
     form.addEventListener('submit', async event => {
       event.preventDefault();
-      submit.disabled = true;
-      message('Salvando cadastro…');
+      submitBtn.disabled = true;
+      const isEditing = !!editIdInput.value;
+      setFormStatus(isEditing ? 'Atualizando fiscal…' : 'Salvando cadastro…');
+
+      const payload = {
+        id: editIdInput.value ? Number(editIdInput.value) : undefined,
+        location_name: locationInput.value.trim(),
+        name: nameInput.value.trim(),
+        phone: phoneInput.value.trim(),
+        section: sectionInput.value ? Number(sectionInput.value) : null
+      };
+
       try {
-        const response = await fetch('/api/assignments', {
-          method: 'POST',
+        const method = isEditing ? 'PUT' : 'POST';
+        const res = await fetch('/api/assignments', {
+          method,
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            location_name: locationsInput.value.trim(),
-            name: nameInput.value.trim(),
-            phone: phoneInput.value.trim()
-          })
+          body: JSON.stringify(payload)
         });
-        const data = await response.json();
-        if (!response.ok) throw new Error(data.error || 'Não foi possível salvar o cadastro.');
-        
-        message(data.message || 'Fiscal cadastrado com sucesso!', 'success');
-        
-        // Se veio pré-preenchido, limpa nome e telefone mas mantém local para adicionar mais se quiser
-        if (preLocation) {
-          nameInput.value = '';
-          phoneInput.value = '';
-          nameInput.focus();
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Erro ao salvar.');
+
+        setFormStatus(data.message || 'Operação realizada com sucesso!', 'success');
+
+        // Recarrega fiscais atualizados
+        await loadFiscals();
+
+        if (isEditing) {
+          cancelEdit();
         } else {
-          form.reset();
+          // Mantém a escola se veio de link externo, senão limpa
+          const keepLocation = new URLSearchParams(window.location.search).get('location');
+          if (keepLocation) {
+            nameInput.value = '';
+            phoneInput.value = '';
+            sectionInput.value = '';
+            nameInput.focus();
+          } else {
+            form.reset();
+          }
         }
-      } catch (error) {
-        message(error.message, 'error');
+      } catch (err) {
+        setFormStatus(err.message, 'error');
       } finally {
-        submit.disabled = false;
+        submitBtn.disabled = false;
       }
     });
+
+    searchInput.addEventListener('input', renderTable);
+
+    pillBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        pillBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentFilter = btn.dataset.filter;
+        renderTable();
+      });
+    });
+
+    // Exportar CSV
+    document.querySelector('#btnExportCsv').addEventListener('click', () => {
+      let csv = 'ID;Nome;Telefone;Local;Secao\n';
+      fiscals.forEach(f => {
+        csv += `${f.id || ''};"${f.name}";"${f.phone || ''}";"${f.location_name}";"${f.section || 'Geral'}"\n`;
+      });
+      const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `fiscais_canoas_${new Date().toISOString().slice(0,10)}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    // Copiar p/ WhatsApp
+    document.querySelector('#btnCopyWa').addEventListener('click', () => {
+      let txt = `*LISTA DE FISCAIS DE CANOAS* (${fiscals.length} cadastrados)\n\n`;
+      fiscals.forEach((f, i) => {
+        const sec = f.section ? `(Seção ${f.section})` : '(Geral)';
+        txt += `${i+1}. *${f.name}* - ${f.location_name} ${sec} | ${formatPhone(f.phone)}\n`;
+      });
+      navigator.clipboard.writeText(txt).then(() => {
+        alert('Lista copiada para a área de transferência! Cole no WhatsApp.');
+      }).catch(() => {
+        alert('Não foi possível copiar automaticamente.');
+      });
+    });
+
+    async function loadLocations() {
+      try {
+        const res = await fetch('/data.json');
+        if (res.ok) {
+          locations = await res.json();
+          officialLocMap = new Set(locations.map(l => normalize(l.name)));
+          locationsDatalist.innerHTML = locations.map(l => `<option value="${l.name}">${l.address}</option>`).join('');
+        }
+      } catch (e) {}
+    }
+
+    async function loadFiscals() {
+      try {
+        const res = await fetch('/api/fiscals');
+        if (res.ok) {
+          fiscals = await res.json();
+          updateMetrics();
+          renderTable();
+        }
+      } catch (e) {
+        fiscalTable.innerHTML = '<div class="empty-msg">Falha ao carregar lista de fiscais.</div>';
+      }
+    }
+
+    // Inicialização
+    (async () => {
+      await loadLocations();
+      await loadFiscals();
+
+      // Checa se veio ?location=... na URL
+      const params = new URLSearchParams(window.location.search);
+      const preLocation = params.get('location');
+      if (preLocation) {
+        locationInput.value = preLocation;
+        nameInput.focus();
+      }
+    })();
   </script>
 </body>
 </html>
