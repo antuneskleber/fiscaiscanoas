@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.4.4 - 2026-10-03
+
+- Remoção do botão de admin e de botões de cadastro da página pública, mantendo apenas a exibição limpa do local, endereço, seções e fiscais alocados.
+- Endereço simplificado para focar na localização (removida a indicação de página do PDF).
+
 ## 0.4.3 - 2026-10-03
 
 - Implementação do Painel Administrativo completo em `/admin.html` com métricas, gestão de fiscais (edição, exclusão), filtros em tempo real e exportação (CSV e WhatsApp).
