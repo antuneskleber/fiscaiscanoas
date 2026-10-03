@@ -25,7 +25,7 @@
     .sections { display:flex; flex-wrap:wrap; gap:6px; }
     .section { padding:4px 8px; border-radius:6px; background:var(--tag); color:#244a7b; font-size:.82rem; font-weight:700; }
     .section.hit { background:var(--brand); color:#fff; }
-    .empty { padding:44px 16px; color:var(--muted); text-align:center; }
+    .empty { padding:44px 16px; color:var(--muted); text-align:center; }.record-title{margin:28px 4px 8px;color:var(--brand);font-size:1.08rem}.fiscal{display:grid;gap:5px}.fiscal-name{font-size:1.05rem;font-weight:750}.fiscal-detail{color:var(--muted);font-size:.9rem}.fiscal a{color:var(--brand);font-weight:750;text-decoration:none}
     .nav { display:flex; justify-content:flex-end; margin-bottom:16px; }.nav a { display:inline-flex; align-items:center; justify-content:center; min-height:44px; padding:8px 13px; border:1px solid var(--brand); border-radius:10px; color:var(--brand); font-weight:750; text-decoration:none; }
     .coverage { margin-top:11px; color:var(--muted); font-size:.83rem; }
     footer { margin-top:30px; color:var(--muted); font-size:.78rem; text-align:center; }
@@ -37,23 +37,49 @@
     <nav class="nav"><a href="/admin.html">Cadastrar fiscal</a></nav>
     <header>
       <h1>Locais e Seções Eleitorais</h1>
-      <p>Canoas — 66ª e 134ª Zonas Eleitorais</p>
+      <p>Busque pelo local ou pelo nome do fiscal e encontre o contato.</p>
     </header>
     <div class="search">
       <label for="q" class="sr-only">Buscar local ou seção</label>
-      <input id="q" type="search" inputmode="search" autocomplete="off" placeholder="Busque pela escola, bairro ou seção" autofocus>
+      <input id="q" type="search" inputmode="search" autocomplete="off" placeholder="Digite o local ou nome do fiscal" autofocus>
     </div>
-    <p class="meta" id="meta" aria-live="polite">Carregando locais…</p>
+    <p class="meta" id="meta" aria-live="polite">Carregando dados…</p>
     <section id="results" aria-live="polite"></section>
-    <footer>Consulta operacional v0.3.3 • Dados fornecidos pela coordenação • Developed by AK Labs</footer>
+    <section id="fiscalResults" aria-live="polite"></section>
+    <footer>Consulta pública v0.4.0 • Dados fornecidos pela coordenação • Developed by AK Labs</footer>
   </main>
   <script>
-    const normalize = value => value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+    const normalize = value => String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
     const escapeHtml = value => String(value).replace(/[&<>'"]/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[char]));
     const input = document.querySelector('#q');
     const meta = document.querySelector('#meta');
     const results = document.querySelector('#results');
+    const fiscalResults = document.querySelector('#fiscalResults');
     let locations = [];
+    let fiscals = [];
+
+    const formatPhone = value => {
+      const digits = String(value || '').replace(/\D/g, '');
+      if (digits.length === 11) return `(${digits.slice(0,2)}) ${digits.slice(2,7)}-${digits.slice(7)}`;
+      if (digits.length === 10) return `(${digits.slice(0,2)}) ${digits.slice(2,6)}-${digits.slice(6)}`;
+      return value || 'Telefone não informado';
+    };
+
+    function renderFiscals(query) {
+      if (!query) {
+        fiscalResults.innerHTML = '<p class="empty">Digite um local ou o nome de um fiscal para ver os contatos.</p>';
+        return;
+      }
+      const normalized = normalize(query);
+      const matches = fiscals.filter(fiscal => [fiscal.location_name, fiscal.name, fiscal.phone].some(value => normalize(value).includes(normalized)));
+      fiscalResults.innerHTML = `<h2 class="record-title">Fiscais encontrados (${matches.length})</h2>${matches.length ? matches.map(fiscal => {
+        const phone = formatPhone(fiscal.phone);
+        const digits = String(fiscal.phone || '').replace(/\D/g, '');
+        const section = fiscal.section ? ` • Seção ${fiscal.section}` : ' • Seção ainda não definida';
+        const contact = digits ? `<a href="tel:${digits}">${escapeHtml(phone)}</a>` : `<div class="fiscal-detail">${escapeHtml(phone)}</div>`;
+        return `<article class="card fiscal"><div class="fiscal-name">${escapeHtml(fiscal.name)}</div><div class="fiscal-detail">${escapeHtml(fiscal.location_name)}${section}</div>${contact}</article>`;
+      }).join('') : '<p class="empty">Nenhum fiscal encontrado. Tente outro nome ou local.</p>'}`;
+    }
 
     function render() {
       const query = input.value.trim();
@@ -69,12 +95,12 @@
           <div class="sections">${location.sections.map(section => `<span class="section ${sectionSearch && section === Number(query) ? 'hit' : ''}">${section}</span>`).join('')}</div>
           <div class="coverage">${location.registered_count || 0} fiscal(is) cadastrado(s) neste local</div>
         </article>`).join('') : '<p class="empty">Nenhum local encontrado. Tente outro nome, bairro ou número de seção.</p>';
+      renderFiscals(query);
     }
 
     input.addEventListener('input', render);
-    fetch('/api/locations')
-      .then(response => response.ok ? response.json() : Promise.reject(new Error('Falha ao carregar os dados.')))
-      .then(data => { locations = data; render(); })
+    Promise.all(['/api/locations', '/api/fiscals'].map(endpoint => fetch(endpoint).then(response => response.ok ? response.json() : Promise.reject(new Error('Falha ao carregar os dados.')))))
+      .then(([locationData, fiscalData]) => { locations = locationData; fiscals = fiscalData; render(); })
       .catch(() => { meta.textContent = 'Não foi possível carregar a lista de locais.'; });
   </script>
 </body>

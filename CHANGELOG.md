@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.4.0 - 2026-10-03
+
+- Busca pública por local ou nome do fiscal, mostrando local, contato e situação da seção.
+- Cadastro aberto sem chave administrativa; local, nome e telefone podem ser incluídos antes da definição das seções.
+
 ## 0.3.3 - 2026-10-03
 
 - Interface otimizada para uso predominante em celulares: controles maiores, tipografia sem zoom automático e suporte a áreas seguras de tela.

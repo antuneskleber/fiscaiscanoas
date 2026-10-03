@@ -13,57 +13,35 @@
   <main class="wrap">
     <a class="back" href="/">← Voltar à consulta</a>
     <h1>Cadastrar fiscal</h1>
-    <p>Informe o local, a seção, o nome e o telefone. Os contatos permanecem restritos ao banco operacional.</p>
+    <p>Informe o local, o nome e o telefone. A seção será incluída posteriormente pela coordenação.</p>
     <form id="form">
       <label for="location">Local</label>
-      <input id="location" list="locations" autocomplete="off" required placeholder="Comece a digitar o nome do local">
-      <datalist id="locations"></datalist>
-      <label for="section">Seção</label>
-      <select id="section" disabled><option>Escolha primeiro o local</option></select>
+      <input id="location" autocomplete="organization" required minlength="3" placeholder="Ex.: Escola Ceará">
       <label for="name">Nome</label>
       <input id="name" autocomplete="name" required minlength="3" placeholder="Nome completo">
       <label for="phone">Telefone</label>
-      <input id="phone" autocomplete="tel" inputmode="tel" placeholder="(51) 99999-9999">
-      <label for="adminToken">Chave administrativa</label>
-      <input id="adminToken" type="password" required autocomplete="off" placeholder="Informe a chave de edição">
+      <input id="phone" autocomplete="tel" inputmode="tel" required placeholder="(51) 99999-9999">
       <button id="submit" type="submit">Salvar cadastro</button>
       <p id="status" class="status" aria-live="polite"></p>
     </form>
-    <footer>Operação interna v0.3.3 • Developed by AK Labs</footer>
+    <footer>Cadastro público v0.4.0 • Developed by AK Labs</footer>
   </main>
   <script>
     const locationsInput = document.querySelector('#location');
-    const locationList = document.querySelector('#locations');
-    const sectionSelect = document.querySelector('#section');
     const form = document.querySelector('#form');
     const submit = document.querySelector('#submit');
     const status = document.querySelector('#status');
-    let locations = [];
-    const selectedLocation = () => locations.find(location => location.name === locationsInput.value);
     const message = (text, type = '') => { status.textContent = text; status.className = `status ${type}`; };
-
-    fetch('/api/locations').then(response => response.json()).then(data => {
-      locations = data;
-      locationList.innerHTML = locations.map(location => `<option value="${location.name}">${location.address}</option>`).join('');
-    }).catch(() => message('Não foi possível carregar os locais.', 'error'));
-
-    locationsInput.addEventListener('input', () => {
-      const location = selectedLocation();
-      sectionSelect.disabled = !location;
-      sectionSelect.innerHTML = location ? `<option value="">Seção não informada</option>${location.sections.map(section => `<option value="${section}">${section}</option>`).join('')}` : '<option>Escolha primeiro o local</option>';
-    });
 
     form.addEventListener('submit', async event => {
       event.preventDefault();
-      const location = selectedLocation();
-      if (!location) return message('Selecione um local válido.', 'error');
       submit.disabled = true;
       message('Salvando cadastro…');
       try {
-        const response = await fetch('/api/assignments', { method:'POST', headers:{'Content-Type':'application/json','X-Admin-Token':document.querySelector('#adminToken').value}, body:JSON.stringify({ location_name:location.name, section:sectionSelect.value, name:document.querySelector('#name').value, phone:document.querySelector('#phone').value }) });
+        const response = await fetch('/api/assignments', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ location_name:locationsInput.value, name:document.querySelector('#name').value, phone:document.querySelector('#phone').value }) });
         const data = await response.json();
         if (!response.ok) throw new Error(data.error || 'Não foi possível salvar o cadastro.');
-        form.reset(); sectionSelect.disabled = true; sectionSelect.innerHTML = '<option>Escolha primeiro o local</option>';
+        form.reset();
         message(data.message, 'success');
       } catch (error) { message(error.message, 'error'); }
       finally { submit.disabled = false; }

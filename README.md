@@ -1,12 +1,12 @@
 # Fiscais Canoas
 
-Consulta pública e rápida de locais, seções e páginas da lista operacional das 66ª e 134ª Zonas Eleitorais de Canoas.
+Consulta pública e rápida de fiscais por local ou nome, para as 66ª e 134ª Zonas Eleitorais de Canoas.
 
 Developed by AK Labs
 
 ## Problema que resolve
 
-Operadores e fiscais podem localizar um local de votação pelo nome, endereço, bairro ou número de seção, sem percorrer manualmente a lista original.
+Operadores e fiscais podem buscar pelo local ou pelo nome do fiscal, encontrando imediatamente o contato e o local associado sem percorrer manualmente a lista original.
 
 ## Público alvo
 
@@ -18,9 +18,9 @@ Frontend em HTML, CSS e JavaScript; produção no Cloudflare Workers com Cloudfl
 
 ## Arquitetura
 
-O Worker entrega os ativos públicos, consulta D1 e recebe os cadastros administrativos. A consulta nunca retorna nomes ou telefones cadastrados; ela mostra apenas a quantidade de fiscais por local. O banco D1 e a chave administrativa permanecem fora do repositório.
+O Worker entrega os ativos públicos, consulta D1 e recebe cadastros abertos. A busca pública retorna nome, telefone e local de cada fiscal, conforme a autorização de publicidade informada pela coordenação. O banco D1 permanece fora do repositório.
 
-Registros sem seção ou local confirmado são preservados para revisão, mas não são contabilizados publicamente até receberem um vínculo válido.
+As seções ainda não foram definidas: os novos cadastros ficam associados ao local e identificados como pendentes de seção.
 
 ## Execução local
 
