@@ -4,104 +4,436 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#173a67">
-  <meta name="description" content="Consulta de locais, páginas e seções eleitorais de Canoas.">
-  <title>Locais e Seções Eleitorais | Canoas</title>
+  <meta name="description" content="Consulta de locais, seções e contatos de fiscais eleitorais em Canoas.">
+  <title>Locais, Seções e Fiscais | Canoas</title>
   <style>
-    :root { color-scheme: light; --ink:#14223a; --muted:#536174; --paper:#fff; --canvas:#f3f6fa; --line:#d9e1ec; --brand:#173a67; --tag:#e8f0fb; }
-    * { box-sizing:border-box; }
-    .sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
-    body { margin:0; background:var(--canvas); color:var(--ink); font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; }
-    .wrap { max-width:800px; margin:auto; padding:max(24px,env(safe-area-inset-top)) 16px calc(48px + env(safe-area-inset-bottom)); }
-    header { padding:0 4px 18px; }
-    h1 { margin:0 0 6px; color:var(--brand); font-size:clamp(1.55rem,4vw,2rem); letter-spacing:-.025em; }
-    header p { margin:0; color:var(--muted); }
-    .search { position:sticky; top:0; z-index:2; padding:12px 0; background:linear-gradient(var(--canvas) 80%,transparent); }
-    input { width:100%; min-height:58px; padding:14px 17px; border:2px solid var(--line); border-radius:14px; outline:0; background:var(--paper); color:var(--ink); font:inherit; font-size:16px; box-shadow:0 2px 8px #14223a0a; }
-    input:focus { border-color:var(--brand); box-shadow:0 0 0 4px #173a6720; }
-    .meta { min-height:24px; margin:3px 4px 12px; color:var(--muted); font-size:.88rem; }
-    .card { margin:10px 0; padding:17px; border:1px solid var(--line); border-radius:14px; background:var(--paper); box-shadow:0 2px 7px #14223a0a; }
-    .title { font-size:1.08rem; font-weight:750; line-height:1.25; }
-    .details { margin:7px 0 13px; color:var(--muted); font-size:.88rem; }
-    .sections { display:flex; flex-wrap:wrap; gap:6px; }
-    .section { padding:4px 8px; border-radius:6px; background:var(--tag); color:#244a7b; font-size:.82rem; font-weight:700; }
-    .section.hit { background:var(--brand); color:#fff; }
-    .empty { padding:44px 16px; color:var(--muted); text-align:center; }.record-title{margin:28px 4px 8px;color:var(--brand);font-size:1.08rem}.fiscal{display:grid;gap:5px}.fiscal-name{font-size:1.05rem;font-weight:750}.fiscal-detail{color:var(--muted);font-size:.9rem}.fiscal a{color:var(--brand);font-weight:750;text-decoration:none}
-    .nav { display:flex; justify-content:flex-end; margin-bottom:16px; }.nav a { display:inline-flex; align-items:center; justify-content:center; min-height:44px; padding:8px 13px; border:1px solid var(--brand); border-radius:10px; color:var(--brand); font-weight:750; text-decoration:none; }
-    .coverage { margin-top:11px; color:var(--muted); font-size:.83rem; }
-    footer { margin-top:30px; color:var(--muted); font-size:.78rem; text-align:center; }
-    @media (max-width:600px) { .wrap{padding-left:12px;padding-right:12px}.nav{justify-content:stretch;margin-bottom:20px}.nav a{width:100%;min-height:50px;background:var(--paper);box-shadow:0 2px 8px #14223a0a}.search{top:0;padding:10px 0}.card{margin:8px 0;padding:15px}.details{font-size:.9rem}.section{padding:6px 9px;font-size:.86rem}footer{padding:0 8px} }
+    :root {
+      color-scheme: light;
+      --ink: #14223a;
+      --muted: #536174;
+      --paper: #fff;
+      --canvas: #f3f6fa;
+      --line: #d9e1ec;
+      --brand: #173a67;
+      --brand-light: #244a7b;
+      --tag: #e8f0fb;
+      --ok: #087443;
+      --ok-bg: #e6f7ec;
+      --ok-border: #a3e0be;
+      --warn: #8c5500;
+      --warn-bg: #fff8e8;
+      --warn-border: #f7d488;
+      --wa-bg: #25d366;
+      --wa-color: #ffffff;
+      --wa-hover: #1ebb5b;
+    }
+    * { box-sizing: border-box; }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+    body { margin: 0; background: var(--canvas); color: var(--ink); font: 16px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+    .wrap { max-width: 820px; margin: auto; padding: max(20px, env(safe-area-inset-top)) 16px calc(48px + env(safe-area-inset-bottom)); }
+    
+    .nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .nav .brand-badge { font-size: 0.85rem; font-weight: 750; color: var(--brand); letter-spacing: 0.02em; }
+    .nav a { display: inline-flex; align-items: center; justify-content: center; min-height: 42px; padding: 6px 14px; border: 1.5px solid var(--brand); border-radius: 10px; background: var(--paper); color: var(--brand); font-weight: 750; font-size: 0.9rem; text-decoration: none; box-shadow: 0 2px 6px #14223a0a; transition: all 0.15s ease; }
+    .nav a:hover { background: var(--brand); color: #fff; }
+
+    header { padding: 0 4px 14px; }
+    h1 { margin: 0 0 6px; color: var(--brand); font-size: clamp(1.6rem, 4vw, 2.1rem); letter-spacing: -0.025em; font-weight: 800; }
+    header p { margin: 0; color: var(--muted); font-size: 1rem; }
+
+    .search { position: sticky; top: 0; z-index: 10; padding: 10px 0 8px; background: linear-gradient(var(--canvas) 85%, transparent); }
+    .search-input-wrap { position: relative; }
+    input[type="search"] { width: 100%; min-height: 56px; padding: 14px 44px 14px 18px; border: 2px solid var(--line); border-radius: 14px; outline: 0; background: var(--paper); color: var(--ink); font: inherit; font-size: 16px; box-shadow: 0 2px 10px #14223a0d; }
+    input[type="search"]:focus { border-color: var(--brand); box-shadow: 0 0 0 4px #173a6720; }
+    .search-clear { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); background: #e2eaf4; border: 0; border-radius: 50%; width: 28px; height: 28px; font-size: 14px; font-weight: bold; color: var(--brand); cursor: pointer; display: none; align-items: center; justify-content: center; }
+
+    .filter-tabs { display: flex; gap: 8px; overflow-x: auto; padding: 8px 2px 10px; scrollbar-width: none; }
+    .filter-tabs::-webkit-scrollbar { display: none; }
+    .tab-btn { flex-shrink: 0; padding: 8px 14px; border: 1.5px solid var(--line); border-radius: 20px; background: var(--paper); color: var(--muted); font: inherit; font-size: 0.88rem; font-weight: 700; cursor: pointer; transition: all 0.15s ease; }
+    .tab-btn:hover { border-color: var(--brand); color: var(--brand); }
+    .tab-btn.active { background: var(--brand); border-color: var(--brand); color: #fff; box-shadow: 0 2px 8px #173a6730; }
+
+    .meta { min-height: 24px; margin: 2px 4px 12px; color: var(--muted); font-size: 0.9rem; font-weight: 550; }
+
+    .card { margin: 14px 0; padding: 18px; border: 1px solid var(--line); border-radius: 16px; background: var(--paper); box-shadow: 0 2px 8px #14223a0a; transition: box-shadow 0.15s ease; }
+    .card:hover { box-shadow: 0 4px 14px #14223a12; }
+    
+    .card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+    .title { font-size: 1.15rem; font-weight: 800; line-height: 1.28; color: var(--ink); }
+    .zone-badge { flex-shrink: 0; padding: 4px 10px; border-radius: 8px; background: var(--tag); color: var(--brand-light); font-size: 0.8rem; font-weight: 750; }
+    
+    .details { margin: 8px 0 14px; color: var(--muted); font-size: 0.9rem; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    
+    .sections-title { font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); margin-bottom: 6px; }
+    .sections { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 16px; }
+    .section { padding: 4px 8px; border-radius: 6px; background: var(--tag); color: var(--brand-light); font-size: 0.82rem; font-weight: 700; }
+    .section.hit { background: var(--brand); color: #fff; transform: scale(1.06); }
+
+    /* Bloco dos Fiscais */
+    .fiscals-block { padding: 14px; border-radius: 12px; background: #f8fafc; border: 1px solid #e5edf5; }
+    .fiscals-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
+    
+    .badge-status { display: inline-flex; align-items: center; gap: 6px; padding: 4px 11px; border-radius: 20px; font-size: 0.82rem; font-weight: 750; }
+    .badge-status.assigned { background: var(--ok-bg); border: 1px solid var(--ok-border); color: var(--ok); }
+    .badge-status.unassigned { background: var(--warn-bg); border: 1px solid var(--warn-border); color: var(--warn); }
+    
+    .btn-add-mini { display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px; border-radius: 8px; border: 1.5px solid var(--brand); background: #ffffff; color: var(--brand); font-size: 0.82rem; font-weight: 750; text-decoration: none; transition: all 0.15s ease; }
+    .btn-add-mini:hover { background: var(--brand); color: #fff; }
+    .btn-add-mini.primary { background: var(--brand); color: #fff; border-color: var(--brand); box-shadow: 0 2px 6px #173a6720; }
+    .btn-add-mini.primary:hover { opacity: 0.92; }
+
+    .fiscal-list { display: grid; gap: 8px; margin-top: 10px; }
+    .fiscal-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 12px; background: #ffffff; border: 1px solid var(--line); border-radius: 10px; box-shadow: 0 1px 3px #00000008; }
+    @media (max-width: 600px) {
+      .fiscal-row { flex-direction: column; align-items: stretch; gap: 10px; }
+    }
+    
+    .fiscal-id { display: flex; align-items: center; gap: 10px; min-width: 0; }
+    .fiscal-avatar { display: flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 50%; background: #e8f0fb; color: var(--brand); font-size: 1rem; flex-shrink: 0; }
+    .fiscal-name-box { min-width: 0; }
+    .fiscal-name { font-size: 1rem; font-weight: 750; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .fiscal-meta { font-size: 0.78rem; color: var(--muted); margin-top: 2px; }
+
+    .fiscal-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; flex-wrap: wrap; }
+    .btn-tel, .btn-wa { display: inline-flex; align-items: center; justify-content: center; gap: 5px; min-height: 36px; padding: 6px 12px; border-radius: 8px; font-size: 0.82rem; font-weight: 750; text-decoration: none; transition: all 0.12s ease; }
+    .btn-tel { background: #eef3f8; color: var(--brand); border: 1px solid #ccd8e6; }
+    .btn-tel:hover { background: #e1ebf5; }
+    .btn-wa { background: var(--wa-bg); color: var(--wa-color); border: 1px solid #1ebb5b; box-shadow: 0 1px 3px #00000015; }
+    .btn-wa:hover { background: var(--wa-hover); }
+    .no-phone-tag { font-size: 0.8rem; color: var(--muted); font-style: italic; padding: 6px 4px; }
+
+    /* Caixa especial: Fiscais a confirmar local */
+    .pending-box { margin: 14px 0 20px; padding: 18px; border: 1.5px dashed var(--warn-border); border-radius: 16px; background: var(--warn-bg); }
+    .pending-header { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+    .pending-title { font-size: 1.05rem; font-weight: 800; color: var(--warn); }
+    .pending-desc { font-size: 0.88rem; color: #704400; margin: 0 0 12px; }
+
+    .empty { padding: 44px 16px; color: var(--muted); text-align: center; font-size: 1rem; background: var(--paper); border-radius: 14px; border: 1px solid var(--line); margin: 20px 0; }
+    footer { margin-top: 36px; color: var(--muted); font-size: 0.8rem; text-align: center; }
+
+    @media (max-width: 600px) {
+      .wrap { padding-left: 12px; padding-right: 12px; }
+      .card { margin: 10px 0; padding: 15px; }
+      .search { padding: 8px 0; }
+      input[type="search"] { min-height: 52px; font-size: 15px; }
+      .btn-tel, .btn-wa { flex: 1; min-height: 40px; }
+      .fiscals-header { flex-direction: column; align-items: stretch; }
+      .btn-add-mini { justify-content: center; min-height: 38px; }
+    }
   </style>
 </head>
 <body>
   <main class="wrap">
-    <nav class="nav"><a href="/admin.html">Cadastrar fiscal</a></nav>
+    <nav class="nav">
+      <span class="brand-badge">📍 Eleições Canoas</span>
+      <a href="/admin.html">+ Cadastrar Fiscal</a>
+    </nav>
     <header>
-      <h1>Locais e Seções Eleitorais</h1>
-      <p>Busque pelo local ou pelo nome do fiscal e encontre o contato.</p>
+      <h1>Locais e Fiscais Eleitorais</h1>
+      <p>Consulte as escolas, seções e os fiscais de cada local com contato direto.</p>
     </header>
+
     <div class="search">
-      <label for="q" class="sr-only">Buscar local ou seção</label>
-      <input id="q" type="search" inputmode="search" autocomplete="off" placeholder="Digite o local ou nome do fiscal" autofocus>
+      <label for="q" class="sr-only">Buscar local, seção ou fiscal</label>
+      <div class="search-input-wrap">
+        <input id="q" type="search" inputmode="search" autocomplete="off" placeholder="Buscar local, bairro, seção ou nome do fiscal..." autofocus>
+        <button id="clearSearch" class="search-clear" type="button" aria-label="Limpar busca">✕</button>
+      </div>
+      <div class="filter-tabs">
+        <button type="button" class="tab-btn active" data-filter="all">Todos (<span id="countAll">87</span>)</button>
+        <button type="button" class="tab-btn" data-filter="assigned">✓ Com Fiscal (<span id="countAssigned">0</span>)</button>
+        <button type="button" class="tab-btn" data-filter="unassigned">⚠️ Sem Fiscal (<span id="countUnassigned">0</span>)</button>
+        <button type="button" class="tab-btn" data-filter="pending">❓ A Confirmar (<span id="countPending">0</span>)</button>
+      </div>
     </div>
+
     <p class="meta" id="meta" aria-live="polite">Carregando dados…</p>
+    
+    <!-- Caixa para fiscais com local a confirmar -->
+    <div id="pendingSection" style="display:none;"></div>
+
+    <!-- Lista de locais com fiscais -->
     <section id="results" aria-live="polite"></section>
-    <section id="fiscalResults" aria-live="polite"></section>
-    <footer>Consulta pública v0.4.1 • Dados fornecidos pela coordenação • Developed by AK Labs</footer>
+    
+    <footer>Consulta pública v0.4.2 • Developed by AK Labs</footer>
   </main>
+
   <script>
-    const normalize = value => String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
-    const escapeHtml = value => String(value).replace(/[&<>'"]/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[char]));
+    const normalize = value => String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+    const escapeHtml = value => String(value || '').replace(/[&<>'"]/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[char]));
+    
     const input = document.querySelector('#q');
+    const clearBtn = document.querySelector('#clearSearch');
     const meta = document.querySelector('#meta');
     const results = document.querySelector('#results');
-    const fiscalResults = document.querySelector('#fiscalResults');
-    let locations = [];
-    let fiscals = [];
+    const pendingSection = document.querySelector('#pendingSection');
+    const tabBtns = document.querySelectorAll('.tab-btn');
+
+    let rawLocations = [];
+    let rawFiscals = [];
+    let mappedLocations = [];
+    let pendingFiscals = [];
+    let activeFilter = 'all';
 
     const formatPhone = value => {
       const digits = String(value || '').replace(/\D/g, '');
       if (digits.length === 11) return `(${digits.slice(0,2)}) ${digits.slice(2,7)}-${digits.slice(7)}`;
       if (digits.length === 10) return `(${digits.slice(0,2)}) ${digits.slice(2,6)}-${digits.slice(6)}`;
-      return value || 'Telefone não informado';
+      return value || '';
     };
 
-    function renderFiscals(query) {
-      if (!query) {
-        fiscalResults.innerHTML = '<p class="empty">Digite um local ou o nome de um fiscal para ver os contatos.</p>';
+    const getWhatsAppUrl = (phone, fiscalName, locationName) => {
+      let digits = String(phone || '').replace(/\D/g, '');
+      if (!digits || digits.length < 10) return '';
+      if (!digits.startsWith('55')) digits = '55' + digits;
+      const msg = `Olá ${fiscalName}, sou da coordenação dos fiscais de Canoas (${locationName}).`;
+      return `https://wa.me/${digits}?text=${encodeURIComponent(msg)}`;
+    };
+
+    function processData() {
+      const locMap = new Map();
+      mappedLocations = rawLocations.map(loc => {
+        const item = { ...loc, fiscals: [] };
+        locMap.set(normalize(loc.name), item);
+        return item;
+      });
+
+      pendingFiscals = [];
+
+      rawFiscals.forEach(fiscal => {
+        const fn = normalize(fiscal.location_name);
+        let matched = locMap.get(fn);
+
+        if (!matched) {
+          // Busca por correspondência aproximada se tiver ao menos 5 caracteres
+          for (const [key, loc] of locMap.entries()) {
+            if (fn.length >= 5 && (key.includes(fn) || fn.includes(key))) {
+              matched = loc;
+              break;
+            }
+          }
+        }
+
+        if (matched) {
+          matched.fiscals.push(fiscal);
+        } else {
+          pendingFiscals.push(fiscal);
+        }
+      });
+
+      // Atualiza contadores
+      const totalLocs = mappedLocations.length;
+      const countAssigned = mappedLocations.filter(l => l.fiscals.length > 0).length;
+      const countUnassigned = totalLocs - countAssigned;
+      
+      document.querySelector('#countAll').textContent = totalLocs;
+      document.querySelector('#countAssigned').textContent = countAssigned;
+      document.querySelector('#countUnassigned').textContent = countUnassigned;
+      document.querySelector('#countPending').textContent = pendingFiscals.length;
+    }
+
+    function renderPendingBox() {
+      if (!pendingFiscals.length) {
+        pendingSection.style.display = 'none';
+        pendingSection.innerHTML = '';
         return;
       }
-      const normalized = normalize(query);
-      const matches = fiscals.filter(fiscal => [fiscal.location_name, fiscal.name, fiscal.phone].some(value => normalize(value).includes(normalized)));
-      fiscalResults.innerHTML = `<h2 class="record-title">Fiscais encontrados (${matches.length})</h2>${matches.length ? matches.map(fiscal => {
-        const phone = formatPhone(fiscal.phone);
-        const digits = String(fiscal.phone || '').replace(/\D/g, '');
-        const section = fiscal.section ? ` • Seção ${fiscal.section}` : ' • Seção ainda não definida';
-        const contact = digits ? `<a href="tel:${digits}">${escapeHtml(phone)}</a>` : `<div class="fiscal-detail">${escapeHtml(phone)}</div>`;
-        return `<article class="card fiscal"><div class="fiscal-name">${escapeHtml(fiscal.name)}</div><div class="fiscal-detail">${escapeHtml(fiscal.location_name)}${section}</div>${contact}</article>`;
-      }).join('') : '<p class="empty">Nenhum fiscal encontrado. Tente outro nome ou local.</p>'}`;
+
+      if (activeFilter !== 'all' && activeFilter !== 'pending') {
+        pendingSection.style.display = 'none';
+        return;
+      }
+
+      const query = input.value.trim();
+      const normQuery = normalize(query);
+
+      const filtered = pendingFiscals.filter(f => {
+        if (!normQuery) return true;
+        return [f.name, f.phone, f.location_name].some(v => normalize(v).includes(normQuery));
+      });
+
+      if (!filtered.length && activeFilter !== 'pending') {
+        pendingSection.style.display = 'none';
+        return;
+      }
+
+      pendingSection.style.display = 'block';
+      pendingSection.innerHTML = `
+        <div class="pending-box">
+          <div class="pending-header">
+            <span style="font-size:1.2rem;">⚠️</span>
+            <div class="pending-title">Fiscais com Local a Confirmar (${filtered.length})</div>
+          </div>
+          <p class="pending-desc">Estes fiscais foram cadastrados, mas informaram nomes como "Harmonia", "Guarani" ou local a definir. Entre em contato para direcioná-los à escola correta.</p>
+          <div class="fiscal-list">
+            ${filtered.map(f => {
+              const phoneFmt = formatPhone(f.phone);
+              const digits = String(f.phone || '').replace(/\D/g, '');
+              const waUrl = getWhatsAppUrl(f.phone, f.name, f.location_name || 'Canoas');
+              return `
+                <div class="fiscal-row">
+                  <div class="fiscal-id">
+                    <div class="fiscal-avatar">👤</div>
+                    <div class="fiscal-name-box">
+                      <div class="fiscal-name">${escapeHtml(f.name)}</div>
+                      <div class="fiscal-meta">Informou: <strong>${escapeHtml(f.location_name || 'Não especificado')}</strong></div>
+                    </div>
+                  </div>
+                  <div class="fiscal-actions">
+                    ${digits ? `<a href="tel:${digits}" class="btn-tel">📞 Ligar</a>` : ''}
+                    ${waUrl ? `<a href="${waUrl}" target="_blank" rel="noopener" class="btn-wa">💬 WhatsApp</a>` : ''}
+                    ${!digits ? `<span class="no-phone-tag">Sem telefone</span>` : ''}
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      `;
     }
 
     function render() {
       const query = input.value.trim();
-      const normalized = normalize(query);
-      const sectionSearch = /^\d+$/.test(query);
-      const matches = locations.filter(location => !query || [location.name, location.address, location.zone, ...location.sections.map(String)].some(value => normalize(value).includes(normalized)));
-      const totalSections = locations.reduce((count, location) => count + location.sections.length, 0);
-      meta.textContent = query ? `${matches.length} local(is) encontrado(s)` : `${locations.length} locais • ${totalSections} seções`;
-      results.innerHTML = matches.length ? matches.map(location => `
-        <article class="card">
-          <div class="title">${escapeHtml(location.name)}</div>
-          <div class="details">${escapeHtml(location.address)} • ${escapeHtml(location.zone)}ª Zona • Página ${location.pages.join('/')}</div>
-          <div class="sections">${location.sections.map(section => `<span class="section ${sectionSearch && section === Number(query) ? 'hit' : ''}">${section}</span>`).join('')}</div>
-          <div class="coverage">${location.registered_count || 0} fiscal(is) cadastrado(s) neste local</div>
-        </article>`).join('') : '<p class="empty">Nenhum local encontrado. Tente outro nome, bairro ou número de seção.</p>';
-      renderFiscals(query);
+      clearBtn.style.display = query ? 'flex' : 'none';
+      const normQuery = normalize(query);
+      const isNumericSection = /^\d+$/.test(query);
+
+      renderPendingBox();
+
+      if (activeFilter === 'pending') {
+        results.innerHTML = '';
+        meta.textContent = `${pendingFiscals.length} fiscal(is) aguardando confirmação de local`;
+        return;
+      }
+
+      // Filtragem de locais
+      let matches = mappedLocations.filter(loc => {
+        // Filtro por tab
+        if (activeFilter === 'assigned' && loc.fiscals.length === 0) return false;
+        if (activeFilter === 'unassigned' && loc.fiscals.length > 0) return false;
+
+        // Filtro por busca
+        if (!normQuery) return true;
+
+        const locMatch = [loc.name, loc.address, loc.zone, ...loc.sections.map(String)]
+          .some(v => normalize(v).includes(normQuery));
+        if (locMatch) return true;
+
+        // Busca também pelo nome ou telefone dos fiscais dentro do local!
+        const fiscalMatch = loc.fiscals.some(f => 
+          [f.name, f.phone].some(v => normalize(v).includes(normQuery))
+        );
+        return fiscalMatch;
+      });
+
+      const totalSections = matches.reduce((acc, loc) => acc + loc.sections.length, 0);
+      const totalFiscais = matches.reduce((acc, loc) => acc + loc.fiscals.length, 0);
+
+      meta.textContent = query || activeFilter !== 'all'
+        ? `Exibindo ${matches.length} local(is) • ${totalFiscais} fiscal(is) alocado(s)`
+        : `${matches.length} locais oficiais • ${totalSections} seções • ${totalFiscais} fiscais escalados`;
+
+      if (!matches.length) {
+        results.innerHTML = '<div class="empty">Nenhum local ou fiscal encontrado com este critério de busca.</div>';
+        return;
+      }
+
+      results.innerHTML = matches.map(loc => {
+        const hasFiscals = loc.fiscals.length > 0;
+        const addUrl = `/admin.html?location=${encodeURIComponent(loc.name)}`;
+
+        return `
+          <article class="card">
+            <div class="card-top">
+              <div class="title">${escapeHtml(loc.name)}</div>
+              <span class="zone-badge">${escapeHtml(loc.zone)}ª Zona</span>
+            </div>
+            <div class="details">
+              <span>📍 ${escapeHtml(loc.address)}</span>
+              <span>• Pág. ${loc.pages.join('/')}</span>
+            </div>
+
+            <div class="sections-title">Seções Eleitorais (${loc.sections.length}):</div>
+            <div class="sections">
+              ${loc.sections.map(s => `
+                <span class="section ${isNumericSection && s === Number(query) ? 'hit' : ''}">${s}</span>
+              `).join('')}
+            </div>
+
+            <div class="fiscals-block">
+              <div class="fiscals-header">
+                ${hasFiscals 
+                  ? `<span class="badge-status assigned">✓ ${loc.fiscals.length} fiscal(is) escalado(s)</span>`
+                  : `<span class="badge-status unassigned">⚠️ Sem fiscal alocado</span>`
+                }
+                <a href="${addUrl}" class="btn-add-mini ${!hasFiscals ? 'primary' : ''}">
+                  ${hasFiscals ? '+ Adicionar outro' : '+ Escalar fiscal aqui'}
+                </a>
+              </div>
+
+              ${hasFiscals ? `
+                <div class="fiscal-list">
+                  ${loc.fiscals.map(f => {
+                    const phoneFmt = formatPhone(f.phone);
+                    const digits = String(f.phone || '').replace(/\D/g, '');
+                    const waUrl = getWhatsAppUrl(f.phone, f.name, loc.name);
+                    const sectionText = f.section ? `Seção ${f.section}` : 'Fiscal de Local (Geral)';
+                    
+                    return `
+                      <div class="fiscal-row">
+                        <div class="fiscal-id">
+                          <div class="fiscal-avatar">👤</div>
+                          <div class="fiscal-name-box">
+                            <div class="fiscal-name">${escapeHtml(f.name)}</div>
+                            <div class="fiscal-meta">${sectionText}</div>
+                          </div>
+                        </div>
+                        <div class="fiscal-actions">
+                          ${digits ? `<a href="tel:${digits}" class="btn-tel" title="Ligar para ${escapeHtml(f.name)}">📞 ${escapeHtml(phoneFmt)}</a>` : ''}
+                          ${waUrl ? `<a href="${waUrl}" target="_blank" rel="noopener" class="btn-wa" title="Chamar no WhatsApp">💬 WhatsApp</a>` : ''}
+                          ${!digits ? `<span class="no-phone-tag">Sem telefone cadastrado</span>` : ''}
+                        </div>
+                      </div>
+                    `;
+                  }).join('')}
+                </div>
+              ` : ''}
+            </div>
+          </article>
+        `;
+      }).join('');
     }
 
     input.addEventListener('input', render);
-    Promise.all(['/api/locations', '/api/fiscals'].map(endpoint => fetch(endpoint).then(response => response.ok ? response.json() : Promise.reject(new Error('Falha ao carregar os dados.')))))
-      .then(([locationData, fiscalData]) => { locations = locationData; fiscals = fiscalData; render(); })
-      .catch(() => { meta.textContent = 'Não foi possível carregar a lista de locais.'; });
+    
+    clearBtn.addEventListener('click', () => {
+      input.value = '';
+      input.focus();
+      render();
+    });
+
+    tabBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        tabBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        activeFilter = btn.dataset.filter;
+        render();
+      });
+    });
+
+    Promise.all([
+      fetch('/api/locations').then(r => r.ok ? r.json() : Promise.reject(new Error('Erro locais'))),
+      fetch('/api/fiscals').then(r => r.ok ? r.json() : Promise.reject(new Error('Erro fiscais')))
+    ])
+    .then(([locationsData, fiscalsData]) => {
+      rawLocations = locationsData;
+      rawFiscals = fiscalsData;
+      processData();
+      render();
+    })
+    .catch(err => {
+      meta.textContent = 'Não foi possível carregar os dados. Verifique a conexão.';
+    });
   </script>
 </body>
 </html>

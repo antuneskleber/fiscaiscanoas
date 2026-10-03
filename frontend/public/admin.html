@@ -4,47 +4,147 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#173a67">
-  <title>Cadastrar fiscal | Fiscais Canoas</title>
+  <title>Cadastrar Fiscal | Fiscais Canoas</title>
   <style>
-    :root { --ink:#14223a; --muted:#536174; --paper:#fff; --canvas:#f3f6fa; --line:#d9e1ec; --brand:#173a67; --ok:#087443; --danger:#b3261e; } *{box-sizing:border-box} body{margin:0;background:var(--canvas);color:var(--ink);font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}.wrap{max-width:640px;margin:auto;padding:max(24px,env(safe-area-inset-top)) 16px calc(48px + env(safe-area-inset-bottom))}.back{display:inline-flex;align-items:center;min-height:44px;color:var(--brand);font-weight:700;text-decoration:none}h1{margin:20px 0 6px;color:var(--brand);font-size:1.8rem}p{color:var(--muted)}form{margin-top:22px;padding:22px;border:1px solid var(--line);border-radius:14px;background:var(--paper);box-shadow:0 2px 8px #14223a0a}label{display:block;margin:16px 0 6px;font-weight:700}input,select,button{width:100%;min-height:50px;border:1px solid var(--line);border-radius:10px;padding:10px 12px;font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}input:focus,select:focus{outline:3px solid #173a6720;border-color:var(--brand)}button{min-height:56px;margin-top:24px;border:0;background:var(--brand);color:#fff;font-weight:750;cursor:pointer}button:disabled{opacity:.6;cursor:wait}.hint{font-size:.85rem}.status{min-height:24px;margin-top:14px;font-weight:650}.success{color:var(--ok)}.error{color:var(--danger)}footer{margin-top:30px;color:var(--muted);font-size:.78rem;text-align:center}@media (max-width:600px){.wrap{padding-left:12px;padding-right:12px}h1{font-size:1.65rem}form{margin-top:18px;padding:18px}.back{min-height:48px}label{margin-top:18px}}
+    :root {
+      --ink: #14223a;
+      --muted: #536174;
+      --paper: #fff;
+      --canvas: #f3f6fa;
+      --line: #d9e1ec;
+      --brand: #173a67;
+      --ok: #087443;
+      --danger: #b3261e;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--canvas); color: var(--ink); font: 16px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+    .wrap { max-width: 640px; margin: auto; padding: max(24px, env(safe-area-inset-top)) 16px calc(48px + env(safe-area-inset-bottom)); }
+    .back { display: inline-flex; align-items: center; min-height: 44px; color: var(--brand); font-weight: 750; text-decoration: none; }
+    .back:hover { text-decoration: underline; }
+    h1 { margin: 16px 0 6px; color: var(--brand); font-size: 1.8rem; font-weight: 800; }
+    p { color: var(--muted); margin: 0 0 18px; }
+    form { margin-top: 14px; padding: 22px; border: 1px solid var(--line); border-radius: 14px; background: var(--paper); box-shadow: 0 2px 8px #14223a0a; }
+    label { display: block; margin: 16px 0 6px; font-weight: 700; font-size: 0.95rem; }
+    label:first-of-type { margin-top: 0; }
+    input, select, button { width: 100%; min-height: 52px; border: 1.5px solid var(--line); border-radius: 10px; padding: 12px 14px; font: 16px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+    input:focus, select:focus { outline: 3px solid #173a6720; border-color: var(--brand); }
+    button { min-height: 56px; margin-top: 24px; border: 0; background: var(--brand); color: #fff; font-weight: 750; cursor: pointer; transition: opacity 0.15s ease; border-radius: 10px; }
+    button:hover { opacity: 0.92; }
+    button:disabled { opacity: 0.6; cursor: wait; }
+    .hint { font-size: 0.82rem; color: var(--muted); margin-top: 4px; }
+    .status { min-height: 24px; margin-top: 16px; font-weight: 650; }
+    .success { color: var(--ok); }
+    .error { color: var(--danger); }
+    footer { margin-top: 30px; color: var(--muted); font-size: 0.78rem; text-align: center; }
+    @media (max-width: 600px) {
+      .wrap { padding-left: 12px; padding-right: 12px; }
+      h1 { font-size: 1.6rem; }
+      form { padding: 18px; }
+    }
   </style>
 </head>
 <body>
   <main class="wrap">
-    <a class="back" href="/">← Voltar à consulta</a>
-    <h1>Cadastrar fiscal</h1>
-    <p>Informe o local, o nome e o telefone. A seção será incluída posteriormente pela coordenação.</p>
+    <a class="back" href="/">← Voltar à lista de locais</a>
+    <h1>Cadastrar Fiscal</h1>
+    <p>Informe o local, o nome e o telefone com DDD. O fiscal ficará visível imediatamente na lista.</p>
+    
     <form id="form">
-      <label for="location">Local</label>
-      <input id="location" autocomplete="organization" required minlength="3" placeholder="Ex.: Escola Ceará">
-      <label for="name">Nome</label>
-      <input id="name" autocomplete="name" required minlength="3" placeholder="Nome completo">
-      <label for="phone">Telefone</label>
-      <input id="phone" autocomplete="tel" inputmode="tel" required placeholder="(51) 99999-9999">
-      <button id="submit" type="submit">Salvar cadastro</button>
+      <label for="location">Local de Votação (Escola)</label>
+      <input id="location" list="locations-list" autocomplete="organization" required minlength="3" placeholder="Selecione ou digite o nome da escola">
+      <datalist id="locations-list"></datalist>
+      <div class="hint">Escolha uma escola da lista oficial de Canoas ou digite o nome.</div>
+
+      <label for="name">Nome Completo do Fiscal</label>
+      <input id="name" autocomplete="name" required minlength="3" placeholder="Nome do fiscal">
+
+      <label for="phone">Telefone / WhatsApp</label>
+      <input id="phone" type="tel" autocomplete="tel" inputmode="tel" required placeholder="(51) 99999-9999">
+      <div class="hint">Usado para contato direto e link do WhatsApp.</div>
+
+      <button id="submit" type="submit">Salvar Cadastro</button>
       <p id="status" class="status" aria-live="polite"></p>
     </form>
-    <footer>Cadastro público v0.4.1 • Developed by AK Labs</footer>
+
+    <footer>Cadastro público v0.4.2 • Developed by AK Labs</footer>
   </main>
+
   <script>
     const locationsInput = document.querySelector('#location');
+    const locationsDatalist = document.querySelector('#locations-list');
+    const nameInput = document.querySelector('#name');
+    const phoneInput = document.querySelector('#phone');
     const form = document.querySelector('#form');
     const submit = document.querySelector('#submit');
     const status = document.querySelector('#status');
-    const message = (text, type = '') => { status.textContent = text; status.className = `status ${type}`; };
+
+    const message = (text, type = '') => {
+      status.textContent = text;
+      status.className = `status ${type}`;
+    };
+
+    // Preenche com query param ?location=... se fornecido
+    const params = new URLSearchParams(window.location.search);
+    const preLocation = params.get('location');
+    if (preLocation) {
+      locationsInput.value = preLocation;
+      nameInput.focus();
+    }
+
+    // Carrega escolas para o autocomplete
+    fetch('/data.json')
+      .then(res => res.ok ? res.json() : [])
+      .then(locs => {
+        locationsDatalist.innerHTML = locs.map(l => `<option value="${l.name}">${l.address}</option>`).join('');
+      })
+      .catch(() => {});
+
+    // Máscara de telefone amigável
+    phoneInput.addEventListener('input', e => {
+      let v = e.target.value.replace(/\D/g, '');
+      if (v.length > 11) v = v.slice(0, 11);
+      if (v.length > 6) {
+        v = `(${v.slice(0,2)}) ${v.slice(2,7)}-${v.slice(7)}`;
+      } else if (v.length > 2) {
+        v = `(${v.slice(0,2)}) ${v.slice(2)}`;
+      } else if (v.length > 0) {
+        v = `(${v}`;
+      }
+      e.target.value = v;
+    });
 
     form.addEventListener('submit', async event => {
       event.preventDefault();
       submit.disabled = true;
       message('Salvando cadastro…');
       try {
-        const response = await fetch('/api/assignments', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ location_name:locationsInput.value, name:document.querySelector('#name').value, phone:document.querySelector('#phone').value }) });
+        const response = await fetch('/api/assignments', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            location_name: locationsInput.value.trim(),
+            name: nameInput.value.trim(),
+            phone: phoneInput.value.trim()
+          })
+        });
         const data = await response.json();
         if (!response.ok) throw new Error(data.error || 'Não foi possível salvar o cadastro.');
-        form.reset();
-        message(data.message, 'success');
-      } catch (error) { message(error.message, 'error'); }
-      finally { submit.disabled = false; }
+        
+        message(data.message || 'Fiscal cadastrado com sucesso!', 'success');
+        
+        // Se veio pré-preenchido, limpa nome e telefone mas mantém local para adicionar mais se quiser
+        if (preLocation) {
+          nameInput.value = '';
+          phoneInput.value = '';
+          nameInput.focus();
+        } else {
+          form.reset();
+        }
+      } catch (error) {
+        message(error.message, 'error');
+      } finally {
+        submit.disabled = false;
+      }
     });
   </script>
 </body>

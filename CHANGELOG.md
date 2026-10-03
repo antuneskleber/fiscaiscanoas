@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.2 - 2026-10-03
+
+- Exibição direta dos fiscais, nomes, contatos e botões de chamada/WhatsApp em cada card de escola.
+- Filtros rápidos por abas: Todos, Com Fiscal, Sem Fiscal e A Confirmar.
+- Ações rápidas para escalar ou adicionar fiscais pré-selecionando o local no cadastro.
+
 ## 0.4.1 - 2026-10-03
 
 - Migração da publicação e da base D1 para a conta AKLabs, em `fiscaiscanoas.aklabs.workers.dev`.
