@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#173a67">
+  <meta name="description" content="Consulta de locais, páginas e seções eleitorais de Canoas.">
+  <title>Locais e Seções Eleitorais | Canoas</title>
+  <style>
+    :root { color-scheme: light; --ink:#14223a; --muted:#536174; --paper:#fff; --canvas:#f3f6fa; --line:#d9e1ec; --brand:#173a67; --tag:#e8f0fb; }
+    * { box-sizing:border-box; }
+    .sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+    body { margin:0; background:var(--canvas); color:var(--ink); font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; }
+    .wrap { max-width:800px; margin:auto; padding:28px 16px 64px; }
+    header { padding:0 4px 18px; }
+    h1 { margin:0 0 6px; color:var(--brand); font-size:clamp(1.55rem,4vw,2rem); letter-spacing:-.025em; }
+    header p { margin:0; color:var(--muted); }
+    .search { position:sticky; top:0; z-index:2; padding:12px 0; background:linear-gradient(var(--canvas) 80%,transparent); }
+    input { width:100%; min-height:58px; padding:14px 17px; border:2px solid var(--line); border-radius:14px; outline:0; background:var(--paper); color:var(--ink); font:inherit; font-size:1.05rem; box-shadow:0 2px 8px #14223a0a; }
+    input:focus { border-color:var(--brand); box-shadow:0 0 0 4px #173a6720; }
+    .meta { min-height:24px; margin:3px 4px 12px; color:var(--muted); font-size:.88rem; }
+    .card { margin:10px 0; padding:17px; border:1px solid var(--line); border-radius:14px; background:var(--paper); box-shadow:0 2px 7px #14223a0a; }
+    .title { font-size:1.08rem; font-weight:750; line-height:1.25; }
+    .details { margin:7px 0 13px; color:var(--muted); font-size:.88rem; }
+    .sections { display:flex; flex-wrap:wrap; gap:6px; }
+    .section { padding:4px 8px; border-radius:6px; background:var(--tag); color:#244a7b; font-size:.82rem; font-weight:700; }
+    .section.hit { background:var(--brand); color:#fff; }
+    .empty { padding:44px 16px; color:var(--muted); text-align:center; }
+    footer { margin-top:30px; color:var(--muted); font-size:.78rem; text-align:center; }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <header>
+      <h1>Locais e Seções Eleitorais</h1>
+      <p>Canoas — 66ª e 134ª Zonas Eleitorais</p>
+    </header>
+    <div class="search">
+      <label for="q" class="sr-only">Buscar local ou seção</label>
+      <input id="q" type="search" inputmode="search" autocomplete="off" placeholder="Busque pela escola, bairro ou seção" autofocus>
+    </div>
+    <p class="meta" id="meta" aria-live="polite">Carregando locais…</p>
+    <section id="results" aria-live="polite"></section>
+    <footer>Consulta operacional v0.1.0 • Dados fornecidos pela coordenação • Developed by AK Labs</footer>
+  </main>
+  <script>
+    const normalize = value => value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+    const escapeHtml = value => String(value).replace(/[&<>'"]/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[char]));
+    const input = document.querySelector('#q');
+    const meta = document.querySelector('#meta');
+    const results = document.querySelector('#results');
+    let locations = [];
+
+    function render() {
+      const query = input.value.trim();
+      const normalized = normalize(query);
+      const sectionSearch = /^\d+$/.test(query);
+      const matches = locations.filter(location => !query || [location.name, location.address, location.zone, ...location.sections.map(String)].some(value => normalize(value).includes(normalized)));
+      const totalSections = locations.reduce((count, location) => count + location.sections.length, 0);
+      meta.textContent = query ? `${matches.length} local(is) encontrado(s)` : `${locations.length} locais • ${totalSections} seções`;
+      results.innerHTML = matches.length ? matches.map(location => `
+        <article class="card">
+          <div class="title">${escapeHtml(location.name)}</div>
+          <div class="details">${escapeHtml(location.address)} • ${escapeHtml(location.zone)}ª Zona • Página ${location.pages.join('/')}</div>
+          <div class="sections">${location.sections.map(section => `<span class="section ${sectionSearch && section === Number(query) ? 'hit' : ''}">${section}</span>`).join('')}</div>
+        </article>`).join('') : '<p class="empty">Nenhum local encontrado. Tente outro nome, bairro ou número de seção.</p>';
+    }
+
+    input.addEventListener('input', render);
+    fetch('./data.json')
+      .then(response => response.ok ? response.json() : Promise.reject(new Error('Falha ao carregar os dados.')))
+      .then(data => { locations = data; render(); })
+      .catch(() => { meta.textContent = 'Não foi possível carregar a lista de locais.'; });
+  </script>
+</body>
+</html>
