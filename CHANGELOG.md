@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.4.7 - 2026-10-03
+
+- Desduplicação do fiscal Luiz Carlos da Silva, unificando seus dois números de telefone (`(51) 99129-534 / (51) 99180-0882`) com botões dedicados de ligação e WhatsApp para cada linha.
+- Remoção do termo/rótulo "Fiscais Volantes", exibindo apenas o bairro correspondente (ex.: "Harmonia e Mathias", "Harmonia e Rio Branco").
+- Atualização cadastral dos telefones de Vani, Marton Lampert, Kelen, Norberto Tombosi, Sara e Humberto.
+- Inclusão da nova fiscal Graziele Bica na EMEF Guajuviras.
+- Suporte a múltiplos telefones na interface pública e no Painel Administrativo.
+
 ## 0.4.6 - 2026-10-03
 
 - Telefone / WhatsApp agora é opcional no formulário de cadastro e edição no Painel Admin.

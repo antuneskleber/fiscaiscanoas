@@ -217,7 +217,7 @@
       </div>
     </section>
 
-    <footer>Painel Administrativo v0.4.3 • Developed by AK Labs</footer>
+    <footer>Painel Administrativo v0.4.7 • Developed by AK Labs</footer>
   </main>
 
   <script>
@@ -248,11 +248,22 @@
     let officialLocMap = new Set();
     let currentFilter = 'all';
 
-    const formatPhone = value => {
+    const formatSinglePhone = value => {
       const digits = String(value || '').replace(/\D/g, '');
       if (digits.length === 11) return `(${digits.slice(0,2)}) ${digits.slice(2,7)}-${digits.slice(7)}`;
       if (digits.length === 10) return `(${digits.slice(0,2)}) ${digits.slice(2,6)}-${digits.slice(6)}`;
+      if (digits.length === 9) return `(51) ${digits.slice(0,5)}-${digits.slice(5)}`;
+      if (digits.length === 8) return `(51) ${digits.slice(0,4)}-${digits.slice(4)}`;
       return value || '';
+    };
+
+    const formatPhone = value => {
+      if (!value) return '';
+      return String(value)
+        .split('/')
+        .map(p => formatSinglePhone(p.trim()))
+        .filter(Boolean)
+        .join(' / ');
     };
 
     const getWhatsAppUrl = (phone, name, loc) => {
@@ -263,8 +274,9 @@
       return `https://wa.me/${digits}?text=${encodeURIComponent(msg)}`;
     };
 
-    // Máscara de telefone
+    // Máscara de telefone (apenas se for telefone único sem barra)
     phoneInput.addEventListener('input', e => {
+      if (e.target.value.includes('/')) return;
       let v = e.target.value.replace(/\D/g, '');
       if (v.length > 11) v = v.slice(0, 11);
       if (v.length > 6) {
@@ -339,9 +351,7 @@
 
       fiscalTable.innerHTML = filtered.map(f => {
         const isOff = isOfficialLocation(f.location_name);
-        const digits = String(f.phone || '').replace(/\D/g, '');
-        const phoneFmt = formatPhone(f.phone);
-        const waUrl = getWhatsAppUrl(f.phone, f.name, f.location_name);
+        const phoneParts = String(f.phone || '').split('/').map(p => p.trim()).filter(Boolean);
         const sectionText = f.section ? `Seção ${f.section}` : 'Fiscal de Local (Geral)';
 
         return `
@@ -355,8 +365,15 @@
               <div class="f-section">${sectionText}</div>
             </div>
             <div class="f-actions">
-              ${digits ? `<a href="tel:${digits}" class="btn-act" title="Ligar">📞 ${escapeHtml(phoneFmt)}</a>` : ''}
-              ${waUrl ? `<a href="${waUrl}" target="_blank" rel="noopener" class="btn-act wa" title="WhatsApp">💬 WhatsApp</a>` : ''}
+              ${phoneParts.length > 0 ? phoneParts.map(p => {
+                const digits = p.replace(/\D/g, '');
+                const singleFmt = formatSinglePhone(p);
+                const waUrl = getWhatsAppUrl(p, f.name, f.location_name);
+                return `
+                  ${digits ? `<a href="tel:${digits}" class="btn-act" title="Ligar (${singleFmt})">📞 ${escapeHtml(singleFmt)}</a>` : ''}
+                  ${waUrl ? `<a href="${waUrl}" target="_blank" rel="noopener" class="btn-act wa" title="WhatsApp">💬 WhatsApp</a>` : ''}
+                `;
+              }).join('') : ''}
               <button type="button" class="btn-act edit" onclick="startEdit(${f.id})">✏️ Editar</button>
               <button type="button" class="btn-act del" onclick="deleteFiscal(${f.id}, '${escapeHtml(f.name).replace(/'/g, "\\'")}')">🗑️ Excluir</button>
             </div>

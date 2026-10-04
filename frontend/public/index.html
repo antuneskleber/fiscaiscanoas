@@ -137,7 +137,7 @@
     <!-- Lista de locais com fiscais -->
     <section id="results" aria-live="polite"></section>
     
-    <footer>Consulta pública v0.4.5 • Developed by AK Labs</footer>
+    <footer>Consulta pública v0.4.7 • Developed by AK Labs</footer>
   </main>
 
   <script>
@@ -155,11 +155,22 @@
     let mappedLocations = [];
     let activeFilter = 'all';
 
-    const formatPhone = value => {
+    const formatSinglePhone = value => {
       const digits = String(value || '').replace(/\D/g, '');
       if (digits.length === 11) return `(${digits.slice(0,2)}) ${digits.slice(2,7)}-${digits.slice(7)}`;
       if (digits.length === 10) return `(${digits.slice(0,2)}) ${digits.slice(2,6)}-${digits.slice(6)}`;
+      if (digits.length === 9) return `(51) ${digits.slice(0,5)}-${digits.slice(5)}`;
+      if (digits.length === 8) return `(51) ${digits.slice(0,4)}-${digits.slice(4)}`;
       return value || '';
+    };
+
+    const formatPhone = value => {
+      if (!value) return '';
+      return String(value)
+        .split('/')
+        .map(p => formatSinglePhone(p.trim()))
+        .filter(Boolean)
+        .join(' / ');
     };
 
     const getWhatsAppUrl = (phone, fiscalName, locationName) => {
@@ -173,8 +184,11 @@
     const customMetadata = {
       'escola guarani': { zone: '66', address: 'Rua São Borja, 350 – Harmonia' },
       'escola irmao miguel': { zone: '134', address: 'Rua João Leivas de Carvalho, 461 – São José' },
+      'harmonia / martinho luterano': { zone: '66', address: 'Bairro Harmonia – Canoas' },
       'harmonia / luterano': { zone: '66', address: 'Bairro Harmonia – Canoas' },
-      'fiscais volantes (harmonia e rio branco)': { zone: '66/134', address: 'Bairros Harmonia e Rio Branco (Fiscalização Volante)' }
+      'harmonia e mathias': { zone: '66', address: 'Bairros Harmonia e Mathias Velho – Canoas' },
+      'harmonia e rio branco': { zone: '66/134', address: 'Bairros Harmonia e Rio Branco – Canoas' },
+      'bairros harmonia e rio branco': { zone: '66/134', address: 'Bairros Harmonia e Rio Branco – Canoas' }
     };
 
     function processData() {
@@ -297,9 +311,10 @@
               ${hasFiscals ? `
                 <div class="fiscal-list">
                   ${loc.fiscals.map(f => {
-                    const phoneFmt = formatPhone(f.phone);
-                    const digits = String(f.phone || '').replace(/\D/g, '');
-                    const waUrl = getWhatsAppUrl(f.phone, f.name, loc.name);
+                    const phoneParts = String(f.phone || '')
+                      .split('/')
+                      .map(p => p.trim())
+                      .filter(Boolean);
                     const sectionText = f.section ? `Seção ${f.section}` : 'Fiscal de Local (Geral)';
                     
                     return `
@@ -312,9 +327,15 @@
                           </div>
                         </div>
                         <div class="fiscal-actions">
-                          ${digits ? `<a href="tel:${digits}" class="btn-tel" title="Ligar para ${escapeHtml(f.name)}">📞 ${escapeHtml(phoneFmt)}</a>` : ''}
-                          ${waUrl ? `<a href="${waUrl}" target="_blank" rel="noopener" class="btn-wa" title="Chamar no WhatsApp">💬 WhatsApp</a>` : ''}
-                          ${!digits ? `<span class="no-phone-tag">Sem telefone cadastrado</span>` : ''}
+                          ${phoneParts.length > 0 ? phoneParts.map(p => {
+                            const digits = p.replace(/\D/g, '');
+                            const singleFmt = formatSinglePhone(p);
+                            const waUrl = getWhatsAppUrl(p, f.name, loc.name);
+                            return `
+                              ${digits ? `<a href="tel:${digits}" class="btn-tel" title="Ligar para ${escapeHtml(f.name)} (${singleFmt})">📞 ${escapeHtml(singleFmt)}</a>` : ''}
+                              ${waUrl ? `<a href="${waUrl}" target="_blank" rel="noopener" class="btn-wa" title="Chamar no WhatsApp">💬 WhatsApp</a>` : ''}
+                            `;
+                          }).join('') : `<span class="no-phone-tag">Sem telefone cadastrado</span>`}
                         </div>
                       </div>
                     `;
