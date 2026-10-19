@@ -51,7 +51,11 @@
     td { display: block; border: 0; padding: 2px 0; }
     td[data-l]::before { content: attr(data-l) ": "; color: var(--muted); font-size: .85rem; }
   }
-  #login { max-width: 380px; margin: 60px auto; }
+  #login, #senhaCard { max-width: 400px; margin: 50px auto; }
+  .lbl { display: block; font-weight: 600; margin: 12px 0 4px; }
+  code { background: #f1edec; padding: 1px 5px; border-radius: 4px; }
+  .equipeForm { display: grid; grid-template-columns: 1fr; gap: 8px; margin-bottom: 14px; }
+  @media (min-width: 760px) { .equipeForm { grid-template-columns: 2fr 1.2fr 1fr auto; } }
   #login p { color: var(--muted); }
   .err { color: var(--red); margin-top: 8px; min-height: 1.2em; }
   dialog { border: 0; border-radius: 14px; padding: 18px; width: min(460px, calc(100vw - 32px)); }
@@ -77,15 +81,32 @@
 <body>
 <header>
   <div><h1>★ Fiscais PT Canoas · 25/10/2026</h1><div class="who" id="quem"></div></div>
-  <button id="sair" hidden>Sair</button>
+  <div><button id="trocar" hidden>Trocar senha</button> <button id="sair" hidden>Sair</button></div>
 </header>
 
 <main>
   <section class="card" id="login">
     <h2>Acesso restrito</h2>
-    <p>Informe sua chave de acesso (coordenação geral ou coordenador).</p>
-    <form id="loginForm"><input id="chave" type="password" autocomplete="current-password" placeholder="Chave de acesso"><br><br><button class="p" style="width:100%">Entrar</button></form>
+    <p>Entre com o seu WhatsApp e a sua senha.</p>
+    <form id="loginForm">
+      <label class="lbl" for="loginTel">WhatsApp</label><input id="loginTel" type="tel" inputmode="numeric" autocomplete="username" placeholder="(51) 99999-9999">
+      <label class="lbl" for="loginSenha">Senha</label><input id="loginSenha" type="password" autocomplete="current-password" placeholder="Senha">
+      <button class="p" style="width:100%;margin-top:14px">Entrar</button>
+    </form>
     <div class="err" id="loginErr"></div>
+    <p class="small muted"><b>Primeiro acesso:</b> a senha é formada pelas iniciais do seu nome (sem "da", "de", "do", "dos", "das" e "e") + os 4 últimos dígitos do seu celular. Ex.: Maria da Silva Souza, final 1234 → <code>mss1234</code>. Em seguida você cria uma senha própria.</p>
+  </section>
+
+  <section class="card" id="senhaCard" hidden>
+    <h2 id="senhaTitulo">Crie a sua senha</h2>
+    <p class="muted" id="senhaTexto">Você entrou com a senha inicial. Para proteger a lista de fiscais, crie agora uma senha só sua.</p>
+    <form id="senhaForm">
+      <label class="lbl" for="senhaAtual">Senha atual</label><input id="senhaAtual" type="password" autocomplete="current-password">
+      <label class="lbl" for="senhaNova">Nova senha (mínimo 8 caracteres, não só números)</label><input id="senhaNova" type="password" autocomplete="new-password">
+      <label class="lbl" for="senhaConf">Repita a nova senha</label><input id="senhaConf" type="password" autocomplete="new-password">
+      <button class="p" style="width:100%;margin-top:14px">Salvar senha</button>
+    </form>
+    <div class="err" id="senhaErr"></div>
   </section>
 
   <div id="app" hidden>
@@ -130,29 +151,34 @@ const cpfFmt = c => !c ? "" : c.includes("*") ? c : `${c.slice(0,3)}.${c.slice(3
 const dataCurta = iso => new Date(iso).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
 const pct = (a, b) => b ? Math.round(a / b * 100) : 0;
 
-let chave = "";
-try { chave = sessionStorage.getItem("fiscais_chave") || ""; } catch {}
+let chave = ""; // token da sessão
+try { chave = sessionStorage.getItem("fiscais_sessao") || ""; } catch {}
 let eu = null, fiscais = [], locais = [], coords = [], vista = "fiscais";
 const isAdmin = () => eu?.tipo === "admin";
+const isMaster = () => !!eu?.master;
+const PAPEL = { master: "admin master", admin: "admin", coord: "coordenador" };
 
 const api = (path, opt = {}) => fetch(path, { ...opt, headers: { "content-type": "application/json", authorization: `Bearer ${chave}`, ...(opt.headers || {}) } });
 const registrarExport = tipo => api("/api/admin/fiscais/exportou", { method: "POST", body: JSON.stringify({ tipo }) });
 
 async function carregar() {
   const re = await api("/api/admin/eu");
-  if (re.status === 401) { sair(); $("#loginErr").textContent = "Chave inválida."; return; }
+  if (re.status === 401) { sair(); $("#loginErr").textContent = "Sessão expirada. Entre novamente."; return; }
   eu = await re.json();
+  $("#login").hidden = true; $("#sair").hidden = false; $("#trocar").hidden = !eu.id || eu.trocar_senha;
+  $("#quem").textContent = `${eu.nome} · ${isMaster() ? "Administrador(a) master" : isAdmin() ? "Administrador(a)" : "Coordenador(a)"}`;
+  if (eu.trocar_senha) return pedirSenha(true);
+  $("#senhaCard").hidden = true;
   const [rf, rl, rc] = await Promise.all([
-    api("/api/admin/fiscais"), fetch("/api/locais"), isAdmin() ? api("/api/admin/coordenadores") : null,
+    api("/api/admin/fiscais"), fetch("/api/locais"), isAdmin() ? api("/api/admin/equipe") : null,
   ]);
   fiscais = await rf.json();
   locais = (await rl.json()).locais;
   coords = rc ? await rc.json() : [];
-  $("#login").hidden = true; $("#app").hidden = false; $("#sair").hidden = false;
-  $("#quem").textContent = isAdmin() ? "Coordenação geral" : `Coordenador(a): ${eu.nome}`;
+  $("#app").hidden = false;
   const abas = isAdmin()
-    ? [["fiscais", "Fiscais"], ["locais", "Cobertura por local"], ["coords", "Coordenadores"], ["relatorios", "Relatórios"], ["acessos", "Acessos"]]
-    : [["fiscais", "Meus indicados"]];
+    ? [["fiscais", "Fiscais"], ["locais", "Cobertura por local"], ["coords", "Equipe"], ["relatorios", "Relatórios"], ["acessos", "Acessos"]]
+    : [["fiscais", "Meus indicados"], ["convite", "Meu link de convite"]];
   if (!abas.some(([v]) => v === vista)) vista = "fiscais";
   $("#tabs").innerHTML = abas.map(([v, t]) => `<button class="s" data-v="${v}" aria-pressed="${v === vista}">${t}</button>`).join("");
   render();
@@ -205,6 +231,7 @@ function render() {
   if (vista === "fiscais") return renderFiscais();
   if (vista === "locais") return renderLocais(cobs);
   if (vista === "coords") return renderCoords();
+  if (vista === "convite") return renderMeuConvite();
   if (vista === "relatorios") return renderRelatorios(cobs);
   if (vista === "acessos") return renderAcessos();
 }
@@ -253,34 +280,53 @@ function renderLocais(cobs) {
   }).join("")}</tbody></table>`;
 }
 
-// ---------- Coordenadores ----------
+// ---------- Equipe (administradores e coordenadores) ----------
 let ultimoSegredo = null;
-function linkConvite(c) { return `${location.origin}/?c=${c.codigo}`; }
+// Endereço público oficial, usado nos links de convite mesmo quando o painel é aberto em outro endereço.
+const SITE = "https://fiscoptcanoas.pages.dev";
+function linkConvite(c) { return `${SITE}/?c=${c.codigo}`; }
 function renderCoords() {
   $("#lista").innerHTML = `
-    <div class="aviso">Cada coordenador recebe um <b>link de convite</b> (para os fiscais se cadastrarem) e uma <b>chave pessoal</b> para entrar neste painel e aprovar só os próprios indicados. A chave aparece uma única vez: envie direto à pessoa, por mensagem privada.</div>
-    <form class="novoCoord" id="formCoord"><input id="nomeCoord" placeholder="Nome do coordenador"><button class="p">Criar</button></form>
-    ${ultimoSegredo ? `<div class="segredo"><b>${esc(ultimoSegredo.nome)}</b> — copie agora, a chave não será mostrada de novo.
-      <div class="small">Link de convite (para divulgar aos fiscais):</div><code>${esc(ultimoSegredo.link)}</code>
-      <div class="small">Chave do painel (só para o coordenador):</div><code>${esc(ultimoSegredo.chave)}</code>
-      <div class="btns"><button class="s sm" data-copiar="${esc(ultimoSegredo.link)}">Copiar link</button><button class="s sm" data-copiar="${esc(ultimoSegredo.chave)}">Copiar chave</button><button class="s sm" id="fecharSegredo">Já copiei</button></div></div>` : ""}
-    ${coords.length ? `<table><thead><tr><th>Coordenador</th><th>Link de convite</th><th>Indicados</th><th>Situação</th><th></th></tr></thead><tbody>${coords.map(c => `
-      <tr><td><strong>${esc(c.nome)}</strong></td>
-      <td data-l="Link"><span class="small">${esc(linkConvite(c))}</span> <button class="s sm" data-copiar="${esc(linkConvite(c))}">Copiar</button></td>
-      <td data-l="Indicados" class="n">${c.total} <span class="muted small">(${c.pendentes} pendentes, ${c.aprovados} aprovados)</span></td>
-      <td data-l="Situação"><span class="pill ${c.ativo ? "ok" : "zero"}">${c.ativo ? "ativo" : "desativado"}</span></td>
-      <td><div class="act"><button class="s sm" data-ativo="${c.id}" data-v="${c.ativo ? 0 : 1}">${c.ativo ? "Desativar" : "Ativar"}</button><button class="s sm" data-chave="${c.id}">Nova chave</button></div></td></tr>`).join("")}</tbody></table>`
-      : '<p class="muted">Nenhum coordenador ainda. Crie o primeiro acima para gerar o link de convite.</p>'}`;
-  $("#formCoord").onsubmit = async e => {
+    <div class="aviso"><b>Admins master</b> fazem tudo e são os únicos que incluem, removem e mudam o papel das pessoas da equipe. <b>Administradores</b> veem a lista completa, aprovam qualquer fiscal, imprimem e exportam. <b>Coordenadores</b> veem só os próprios indicados (CPF mascarado) e apenas aprovam ou recusam.
+      Todos entram com o WhatsApp e a senha inicial (iniciais do nome + 4 últimos dígitos do celular) e são obrigados a criar uma senha própria no primeiro acesso.</div>
+    ${isMaster() ? `<form class="equipeForm" id="formEquipe">
+      <input id="eqNome" placeholder="Nome completo">
+      <input id="eqTel" type="tel" inputmode="numeric" placeholder="WhatsApp com DDD">
+      <select id="eqPapel"><option value="coord">Coordenador(a)</option><option value="admin">Administrador(a)</option><option value="master">Admin master</option></select>
+      <button class="p">Incluir</button>
+    </form>
+    <div class="err" id="eqErr"></div>` : '<p class="muted small">Somente administradores master podem incluir ou alterar pessoas da equipe.</p>'}
+    ${ultimoSegredo ? `<div class="segredo"><b>${esc(ultimoSegredo.nome)}</b> pode entrar em <b>${SITE}/admin.html</b> com o WhatsApp e a senha inicial <code style="display:inline;padding:2px 6px">${esc(ultimoSegredo.senha)}</code>. No primeiro acesso, o painel pede uma senha nova.
+      <div class="btns" style="margin-top:8px"><button class="s sm" id="fecharSegredo">OK</button></div></div>` : ""}
+    ${coords.length ? `<table><thead><tr><th>Nome</th><th>Papel</th><th>WhatsApp</th><th>Link de convite</th><th>Indicados</th><th>Senha</th>${isMaster() ? "<th></th>" : ""}</tr></thead><tbody>${coords.map(c => `
+      <tr${c.ativo ? "" : ' style="opacity:.55"'}><td><strong>${esc(c.nome)}</strong>${c.ativo ? "" : ' <span class="pill zero">desativado</span>'}</td>
+      <td data-l="Papel"><span class="pill ${c.papel === "coord" ? "ok" : c.papel === "admin" ? "part" : "zero"}">${PAPEL[c.papel]}</span></td>
+      <td data-l="WhatsApp">${c.telefone ? telFmt(c.telefone) : "—"}</td>
+      <td data-l="Link"><button class="s sm" data-copiar="${esc(linkConvite(c))}">Copiar link</button> <span class="muted small">?c=${esc(c.codigo)}</span></td>
+      <td data-l="Indicados" class="n">${c.total} <span class="muted small">(${c.pendentes} pend., ${c.aprovados} aprov.)</span></td>
+      <td data-l="Senha">${c.trocar_senha ? '<span class="pill part">inicial</span>' : '<span class="pill ok">própria</span>'}</td>
+      ${isMaster() ? `<td><div class="act">
+        <select class="sm" data-papel="${c.id}" style="width:auto;padding:4px 6px;font-size:.85rem">${Object.entries(PAPEL).map(([v, t]) => `<option value="${v}" ${v === c.papel ? "selected" : ""}>${t}</option>`).join("")}</select>
+        <button class="s sm" data-ativo="${c.id}" data-v="${c.ativo ? 0 : 1}">${c.ativo ? "Desativar" : "Ativar"}</button>
+        <button class="s sm" data-reset="${c.id}">Redefinir senha</button></div></td>` : ""}</tr>`).join("")}</tbody></table>`
+      : '<p class="muted">Ninguém na equipe ainda. Inclua os administradores e coordenadores acima.</p>'}`;
+  if ($("#formEquipe")) $("#formEquipe").onsubmit = async e => {
     e.preventDefault();
-    const nome = $("#nomeCoord").value.trim();
-    const r = await api("/api/admin/coordenadores", { method: "POST", body: JSON.stringify({ nome }) });
+    const corpo = { nome: $("#eqNome").value.trim(), telefone: $("#eqTel").value, papel: $("#eqPapel").value };
+    const r = await api("/api/admin/equipe", { method: "POST", body: JSON.stringify(corpo) });
     const res = await r.json();
-    if (!r.ok) return alert(res.error);
-    ultimoSegredo = { nome: res.nome, chave: res.chave, link: `${location.origin}/?c=${res.codigo}` };
+    if (!r.ok) { $("#eqErr").textContent = res.error; return; }
+    ultimoSegredo = { nome: corpo.nome, senha: res.senha_inicial };
     carregar();
   };
   const fechar = $("#fecharSegredo"); if (fechar) fechar.onclick = () => { ultimoSegredo = null; renderCoords(); };
+}
+
+function renderMeuConvite() {
+  const link = `${SITE}/?c=${eu.codigo || ""}`;
+  $("#lista").innerHTML = `<p>Envie este link para as pessoas que você indica como fiscais. Os cadastros feitos por ele aparecem em <b>Meus indicados</b> para você aprovar.</p>
+    <div class="segredo"><code>${esc(link)}</code><div class="btns"><button class="s sm" data-copiar="${esc(link)}">Copiar link</button>
+    <a class="wa-btn" style="text-decoration:none" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(`Seja fiscal voluntário(a) do PT Canoas no 2º turno, dia 25/10! Cadastre-se: ${link}`)}">Enviar pelo WhatsApp</a></div></div>`;
 }
 
 // ---------- Ações nas listas ----------
@@ -303,14 +349,23 @@ $("#lista").addEventListener("click", async e => {
   } else if (b.dataset.conf || b.dataset.reenviar) {
     enviarMensagem(fiscal(b.dataset.conf || b.dataset.reenviar));
   } else if (b.dataset.ativo) {
-    await api(`/api/admin/coordenadores/${b.dataset.ativo}`, { method: "PUT", body: JSON.stringify({ ativo: b.dataset.v === "1" }) }); carregar();
-  } else if (b.dataset.chave) {
-    const c = coords.find(x => x.id === Number(b.dataset.chave));
-    if (!confirm(`Gerar nova chave para ${c.nome}? A chave atual deixa de funcionar.`)) return;
-    const res = await (await api(`/api/admin/coordenadores/${c.id}/nova-chave`, { method: "POST" })).json();
-    ultimoSegredo = { nome: c.nome, chave: res.chave, link: linkConvite(c) };
+    const r = await api(`/api/admin/equipe/${b.dataset.ativo}`, { method: "PUT", body: JSON.stringify({ ativo: b.dataset.v === "1" }) });
+    if (!r.ok) alert((await r.json()).error); else carregar();
+  } else if (b.dataset.reset) {
+    const c = coords.find(x => x.id === Number(b.dataset.reset));
+    if (!confirm(`Voltar a senha de ${c.nome} para a senha inicial? A pessoa terá de criar uma nova no próximo acesso.`)) return;
+    const res = await (await api(`/api/admin/equipe/${c.id}/redefinir-senha`, { method: "POST" })).json();
+    ultimoSegredo = { nome: c.nome, senha: res.senha_inicial };
     renderCoords();
   }
+});
+
+$("#lista").addEventListener("change", async e => {
+  const sel = e.target.closest("select[data-papel]"); if (!sel) return;
+  const c = coords.find(x => x.id === Number(sel.dataset.papel));
+  if (!confirm(`Mudar ${c.nome} para ${PAPEL[sel.value]}?`)) { sel.value = c.papel; return; }
+  const r = await api(`/api/admin/equipe/${c.id}`, { method: "PUT", body: JSON.stringify({ papel: sel.value }) });
+  if (!r.ok) { alert((await r.json()).error); sel.value = c.papel; } else carregar();
 });
 
 // ---------- Edição / cadastro manual ----------
@@ -325,7 +380,7 @@ function abrirEdicao(f) {
   editando = f; $("#editErr").textContent = "";
   $("#dlgTitulo").textContent = f.id ? "Editar fiscal" : "Cadastrar fiscal";
   ef.nome.value = f.nome; ef.cpf.value = cpfFmt(f.cpf); ef.telefone.value = f.telefone ? telFmt(f.telefone) : ""; ef.zona.value = f.zona;
-  ef.coordenador_id.innerHTML = `<option value="">Coordenação geral</option>` + coords.map(c => `<option value="${c.id}" ${c.id === f.coordenador_id ? "selected" : ""}>${esc(c.nome)}</option>`).join("");
+  ef.coordenador_id.innerHTML = `<option value="">Coordenação geral</option>` + coords.filter(c => c.ativo || c.id === f.coordenador_id).map(c => `<option value="${c.id}" ${c.id === f.coordenador_id ? "selected" : ""}>${esc(c.nome)}</option>`).join("");
   opcoesLocal(f.zona, f.local_id); opcoesSecao(f.secao); $("#dlg").showModal();
 }
 $("#novo").onclick = () => abrirEdicao({ nome: "", cpf: "", telefone: "", zona: 66, local_id: null, secao: null, coordenador_id: null });
@@ -467,13 +522,39 @@ async function renderAcessos() {
 
 // ---------- Sessão ----------
 function sair() {
+  if (chave) api("/api/admin/sair", { method: "POST" }).catch(() => {});
   chave = ""; eu = null; fiscais = [];
-  try { sessionStorage.removeItem("fiscais_chave"); } catch {}
-  $("#app").hidden = true; $("#login").hidden = false; $("#sair").hidden = true; $("#quem").textContent = ""; $("#lista").innerHTML = "";
+  try { sessionStorage.removeItem("fiscais_sessao"); } catch {}
+  $("#app").hidden = true; $("#senhaCard").hidden = true; $("#login").hidden = false;
+  $("#sair").hidden = true; $("#trocar").hidden = true; $("#quem").textContent = ""; $("#lista").innerHTML = "";
 }
-$("#loginForm").addEventListener("submit", e => {
-  e.preventDefault(); chave = $("#chave").value.trim(); $("#chave").value = ""; $("#loginErr").textContent = "";
-  try { sessionStorage.setItem("fiscais_chave", chave); } catch {}
+$("#loginTel").addEventListener("input", e => {
+  const d = e.target.value.replace(/\D/g, "").slice(0, 11);
+  e.target.value = d.length > 6 ? `(${d.slice(0,2)}) ${d.slice(2, d.length - 4)}-${d.slice(-4)}` : d.length > 2 ? `(${d.slice(0,2)}) ${d.slice(2)}` : d;
+});
+$("#loginForm").addEventListener("submit", async e => {
+  e.preventDefault(); $("#loginErr").textContent = "";
+  const r = await fetch("/api/login", { method: "POST", headers: { "content-type": "application/json" },
+    body: JSON.stringify({ telefone: $("#loginTel").value, senha: $("#loginSenha").value }) });
+  const res = await r.json();
+  $("#loginSenha").value = "";
+  if (!r.ok) { $("#loginErr").textContent = res.error; return; }
+  chave = res.token;
+  try { sessionStorage.setItem("fiscais_sessao", chave); } catch {}
+  carregar();
+});
+function pedirSenha(obrigatorio) {
+  $("#app").hidden = true; $("#senhaCard").hidden = false; $("#senhaErr").textContent = "";
+  $("#senhaTitulo").textContent = obrigatorio ? "Crie a sua senha" : "Trocar senha";
+  $("#senhaTexto").hidden = !obrigatorio;
+  ["#senhaAtual", "#senhaNova", "#senhaConf"].forEach(s => { $(s).value = ""; });
+}
+$("#trocar").onclick = () => pedirSenha(false);
+$("#senhaForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  if ($("#senhaNova").value !== $("#senhaConf").value) { $("#senhaErr").textContent = "As senhas não conferem."; return; }
+  const r = await api("/api/admin/senha", { method: "POST", body: JSON.stringify({ atual: $("#senhaAtual").value, nova: $("#senhaNova").value }) });
+  if (!r.ok) { $("#senhaErr").textContent = (await r.json()).error; return; }
   carregar();
 });
 $("#sair").onclick = sair;

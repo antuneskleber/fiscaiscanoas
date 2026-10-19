@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.3.0 - 2026-10-19
+
+- Login da equipe por WhatsApp + senha (migração `0005_equipe_login.sql`), com sessão de 12 h, bloqueio de 15 min após 5 senhas erradas e registro em Acessos. A `ADMIN_KEY` continua valendo como chave mestra de emergência.
+- Senha inicial = iniciais do nome (sem da/de/do/das/dos/e) + 4 últimos dígitos do celular; troca obrigatória no primeiro acesso (mínimo 8 caracteres, não só números).
+- Três papéis: admin master (gerencia a equipe), administrador (lista completa, aprovação, impressão e exportação) e coordenador (só os próprios indicados). Aba Equipe substitui a de Coordenadores; coordenador ganha a aba "Meu link de convite".
+- Links de convite sempre com o endereço oficial `https://fiscoptcanoas.pages.dev`.
+- Admins master em produção: Kleber Antunes e Graziele Bica.
+- Prints de todas as telas em `docs/prints/` (dados fictícios).
+
 ## 1.2.0 - 2026-10-19
 
 - Cadastro somente por convite: cada coordenador tem um link pessoal (`/?c=CÓDIGO`); o fiscal entra como "pendente" até ser aprovado por quem indicou (migração `0004_coordenadores.sql`).

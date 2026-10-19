@@ -3,6 +3,7 @@ import LOCAIS from "./locais.json";
 const DATA_ELEICAO = "2026-10-25";
 const LOCAL_POR_CHAVE = new Map(LOCAIS.map(l => [`${l.zona}:${l.id}`, l]));
 const STATUS = ["pendente", "aprovado", "recusado"];
+const PAPEIS = ["master", "admin", "coord"];
 
 const json = (data, status = 200, extra = {}) =>
   new Response(JSON.stringify(data), {
@@ -64,19 +65,103 @@ async function enviarConfirmacaoApi(env, id, f, local) {
   await env.DB.prepare("UPDATE fiscais SET confirmado_em = ?, confirmado_via = 'api' WHERE id = ?").bind(new Date().toISOString(), id).run();
 }
 
-// Quem está chamando a API administrativa:
-//   { tipo: "admin" }              — ADMIN_KEY, coordenação geral
-//   { tipo: "coord", id, nome }    — chave pessoal de um coordenador ativo
-async function perfil(request, env) {
-  const enviada = (request.headers.get("authorization") || "").replace(/^Bearer\s+/i, "");
-  if (!enviada) return null;
-  const h = await sha256(enviada);
+const CONECTIVOS = new Set(["da", "de", "do", "das", "dos", "e"]);
+const SESSAO_HORAS = 12;
+const MAX_FALHAS = 5;
+const BLOQUEIO_MIN = 15;
+
+// Senha inicial: iniciais do nome (sem da/de/do/das/dos/e) + 4 últimos dígitos do celular.
+// Ex.: Maria da Silva Souza, (51) 99999-1234 -> mss1234
+function senhaInicial(nome, telefone) {
+  const iniciais = nome.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase()
+    .split(/\s+/).filter(p => p && !CONECTIVOS.has(p)).map(p => p[0]).join("");
+  return iniciais + telefone.slice(-4);
+}
+
+async function hashSenha(senha, salt) {
+  const base = await crypto.subtle.importKey("raw", new TextEncoder().encode(senha), "PBKDF2", false, ["deriveBits"]);
+  const bits = await crypto.subtle.deriveBits({ name: "PBKDF2", hash: "SHA-256", salt: new TextEncoder().encode(salt), iterations: 10000 }, base, 256);
+  return [...new Uint8Array(bits)].map(b => b.toString(16).padStart(2, "0")).join("");
+}
+
+async function definirSenha(env, id, senha, trocar) {
+  const salt = aleatorio(16);
+  await env.DB.prepare("UPDATE coordenadores SET senha_hash = ?, senha_salt = ?, trocar_senha = ?, falhas = 0, bloqueado_ate = NULL WHERE id = ?")
+    .bind(await hashSenha(senha, salt), salt, trocar ? 1 : 0, id).run();
+}
+
+const iguais = (a, b) => {
   const enc = new TextEncoder();
-  if (env.ADMIN_KEY && crypto.subtle.timingSafeEqual(enc.encode(h), enc.encode(await sha256(env.ADMIN_KEY)))) {
-    return { tipo: "admin", nome: "Coordenação geral" };
+  const x = enc.encode(a), y = enc.encode(b);
+  return x.length === y.length && crypto.subtle.timingSafeEqual(x, y);
+};
+
+async function login(request, env) {
+  const p = await request.json().catch(() => ({}));
+  const senha = String(p.senha || "");
+  const erro = json({ error: "WhatsApp ou senha incorretos." }, 401);
+  let membroId = null;
+
+  // Chave mestra (ADMIN_KEY) continua valendo para emergências.
+  if (!(env.ADMIN_KEY && iguais(await sha256(senha), await sha256(env.ADMIN_KEY)))) {
+    const telefone = normalizarTelefone(p.telefone);
+    if (!telefone) return erro;
+    const m = await env.DB.prepare("SELECT * FROM coordenadores WHERE telefone = ? AND ativo = 1").bind(telefone).first();
+    if (!m || !m.senha_hash) return erro;
+    if (m.bloqueado_ate && m.bloqueado_ate > new Date().toISOString()) {
+      return json({ error: `Muitas tentativas erradas. Tente de novo em ${BLOQUEIO_MIN} minutos.` }, 429);
+    }
+    // A senha inicial é aceita sem diferenciar maiúsculas.
+    const tentativa = m.trocar_senha ? senha.trim().toLowerCase() : senha;
+    if (!iguais(await hashSenha(tentativa, m.senha_salt), m.senha_hash)) {
+      const falhas = m.falhas + 1;
+      const bloqueio = falhas >= MAX_FALHAS ? new Date(Date.now() + BLOQUEIO_MIN * 60000).toISOString() : null;
+      await env.DB.prepare("UPDATE coordenadores SET falhas = ?, bloqueado_ate = ? WHERE id = ?").bind(bloqueio ? 0 : falhas, bloqueio, m.id).run();
+      await registrarAcesso(env, request, { nome: m.nome }, bloqueio ? "login bloqueado após 5 tentativas" : "senha errada");
+      return erro;
+    }
+    await env.DB.prepare("UPDATE coordenadores SET falhas = 0, bloqueado_ate = NULL WHERE id = ?").bind(m.id).run();
+    membroId = m.id;
   }
-  const c = await env.DB.prepare("SELECT id, nome FROM coordenadores WHERE chave_hash = ? AND ativo = 1").bind(h).first();
-  return c ? { tipo: "coord", id: c.id, nome: c.nome } : null;
+
+  const token = aleatorio(40, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
+  await env.DB.prepare("DELETE FROM sessoes WHERE expira_em < ?").bind(new Date().toISOString()).run();
+  await env.DB.prepare("INSERT INTO sessoes (token_hash, membro_id, expira_em) VALUES (?, ?, ?)")
+    .bind(await sha256(token), membroId, new Date(Date.now() + SESSAO_HORAS * 3600000).toISOString()).run();
+  const quem = await perfilDaSessao(env, await sha256(token));
+  await registrarAcesso(env, request, quem, "entrou no painel");
+  return json({ token, ...quem });
+}
+
+async function perfilDaSessao(env, tokenHash) {
+  const s = await env.DB.prepare("SELECT membro_id FROM sessoes WHERE token_hash = ? AND expira_em > ?")
+    .bind(tokenHash, new Date().toISOString()).first();
+  if (!s) return null;
+  if (s.membro_id == null) return { tipo: "admin", master: true, id: null, nome: "Chave mestra", trocar_senha: false };
+  const m = await env.DB.prepare("SELECT id, nome, papel, codigo, trocar_senha FROM coordenadores WHERE id = ? AND ativo = 1").bind(s.membro_id).first();
+  // "master" é um administrador que também gerencia a equipe.
+  return m ? { tipo: m.papel === "coord" ? "coord" : "admin", master: m.papel === "master", papel: m.papel, id: m.id, nome: m.nome, codigo: m.codigo, trocar_senha: !!m.trocar_senha } : null;
+}
+
+// Quem está chamando a API administrativa: { tipo: "admin" | "coord", master, id, nome, trocar_senha }
+async function perfil(request, env) {
+  const token = (request.headers.get("authorization") || "").replace(/^Bearer\s+/i, "");
+  return token ? perfilDaSessao(env, await sha256(token)) : null;
+}
+
+async function trocarSenha(request, env, quem) {
+  if (!quem.id) return json({ error: "A chave mestra não tem senha para trocar." }, 400);
+  const { atual = "", nova = "" } = await request.json().catch(() => ({}));
+  const m = await env.DB.prepare("SELECT * FROM coordenadores WHERE id = ?").bind(quem.id).first();
+  const tentativa = m.trocar_senha ? atual.trim().toLowerCase() : atual;
+  if (!iguais(await hashSenha(tentativa, m.senha_salt), m.senha_hash)) return json({ error: "Senha atual incorreta." }, 400);
+  if (nova.length < 8) return json({ error: "A nova senha precisa ter pelo menos 8 caracteres." }, 400);
+  if (nova.toLowerCase() === senhaInicial(m.nome, m.telefone) || /^\d+$/.test(nova)) {
+    return json({ error: "Escolha uma senha diferente da inicial e que não seja só números." }, 400);
+  }
+  await definirSenha(env, m.id, nova, false);
+  await registrarAcesso(env, request, quem, "trocou a senha");
+  return json({ ok: true });
 }
 
 async function registrarAcesso(env, request, quem, acao) {
@@ -145,43 +230,64 @@ async function cadastrar(request, env) {
   return json({ ok: true, local: r.local.nome, endereco: r.local.endereco, bairro: r.local.bairro, zona: r.zona, secao: r.secao, coordenador: coord.nome.split(" ")[0] }, 201);
 }
 
-async function coordenadores(request, env, url, quem) {
+async function equipe(request, env, url, quem) {
   if (quem.tipo !== "admin") return json({ error: "Acesso negado." }, 403);
   const partes = url.pathname.split("/");
   const id = Number(partes[4]);
 
   if (request.method === "GET") {
     const { results } = await env.DB.prepare(`
-      SELECT c.id, c.nome, c.codigo, c.ativo, c.criado_em,
+      SELECT c.id, c.nome, c.telefone, c.papel, c.codigo, c.ativo, c.trocar_senha, c.criado_em,
         COUNT(f.id) AS total,
         COALESCE(SUM(f.status = 'pendente'), 0) AS pendentes,
         COALESCE(SUM(f.status = 'aprovado'), 0) AS aprovados
       FROM coordenadores c LEFT JOIN fiscais f ON f.coordenador_id = c.id
-      GROUP BY c.id ORDER BY c.nome COLLATE NOCASE`).all();
+      GROUP BY c.id ORDER BY CASE c.papel WHEN 'master' THEN 0 WHEN 'admin' THEN 1 ELSE 2 END, c.nome COLLATE NOCASE`).all();
     return json(results);
   }
 
-  // Criar coordenador ou gerar nova chave: a chave só aparece nesta resposta.
-  if (request.method === "POST" && (!id || partes[5] === "nova-chave")) {
-    const chave = `coord-${aleatorio(14)}`;
-    if (!id) {
-      const nome = texto((await request.json().catch(() => ({}))).nome);
-      if (nome.length < 3) return json({ error: "Informe o nome do coordenador." }, 400);
-      const codigo = aleatorio(6);
-      await env.DB.prepare("INSERT INTO coordenadores (nome, codigo, chave_hash, criado_em) VALUES (?, ?, ?, ?)")
-        .bind(nome, codigo, await sha256(chave), new Date().toISOString()).run();
-      await registrarAcesso(env, request, quem, `criou coordenador ${nome}`);
-      return json({ ok: true, nome, codigo, chave }, 201);
+  // Incluir, remover e mudar papéis da equipe: só administrador master.
+  if (!quem.master) return json({ error: "Só administradores master podem alterar a equipe." }, 403);
+
+  if (request.method === "POST" && !id) {
+    const p = await request.json().catch(() => ({}));
+    const nome = texto(p.nome);
+    const telefone = normalizarTelefone(p.telefone);
+    const papel = PAPEIS.includes(p.papel) ? p.papel : "coord";
+    if (nome.length < 5 || !nome.includes(" ")) return json({ error: "Informe o nome completo." }, 400);
+    if (!telefone) return json({ error: "Informe um WhatsApp válido com DDD." }, 400);
+    try {
+      const { meta } = await env.DB.prepare("INSERT INTO coordenadores (nome, telefone, papel, codigo, chave_hash, criado_em) VALUES (?, ?, ?, ?, ?, ?)")
+        .bind(nome, telefone, papel, aleatorio(6), await sha256(aleatorio(32)), new Date().toISOString()).run();
+      await definirSenha(env, meta.last_row_id, senhaInicial(nome, telefone), true);
+    } catch (e) {
+      if (String(e?.message || e).includes("telefone")) return json({ error: "Já existe alguém da equipe com este WhatsApp." }, 409);
+      throw e;
     }
-    await env.DB.prepare("UPDATE coordenadores SET chave_hash = ? WHERE id = ?").bind(await sha256(chave), id).run();
-    await registrarAcesso(env, request, quem, `gerou nova chave do coordenador #${id}`);
-    return json({ ok: true, chave });
+    await registrarAcesso(env, request, quem, `incluiu ${nome} na equipe (${papel})`);
+    return json({ ok: true, senha_inicial: senhaInicial(nome, telefone) }, 201);
+  }
+
+  if (request.method === "POST" && id && partes[5] === "redefinir-senha") {
+    const m = await env.DB.prepare("SELECT nome, telefone FROM coordenadores WHERE id = ?").bind(id).first();
+    if (!m) return json({ error: "Não encontrado." }, 404);
+    await definirSenha(env, id, senhaInicial(m.nome, m.telefone), true);
+    await env.DB.prepare("DELETE FROM sessoes WHERE membro_id = ?").bind(id).run();
+    await registrarAcesso(env, request, quem, `redefiniu a senha de ${m.nome}`);
+    return json({ ok: true, senha_inicial: senhaInicial(m.nome, m.telefone) });
   }
 
   if (request.method === "PUT" && id) {
-    const { ativo } = await request.json().catch(() => ({}));
-    await env.DB.prepare("UPDATE coordenadores SET ativo = ? WHERE id = ?").bind(ativo ? 1 : 0, id).run();
-    await registrarAcesso(env, request, quem, `${ativo ? "ativou" : "desativou"} coordenador #${id}`);
+    const p = await request.json().catch(() => ({}));
+    if (id === quem.id && (p.ativo === false || (p.papel && p.papel !== "master"))) return json({ error: "Você não pode remover o seu próprio acesso de administrador master." }, 400);
+    if ("ativo" in p) {
+      await env.DB.prepare("UPDATE coordenadores SET ativo = ? WHERE id = ?").bind(p.ativo ? 1 : 0, id).run();
+      if (!p.ativo) await env.DB.prepare("DELETE FROM sessoes WHERE membro_id = ?").bind(id).run();
+    }
+    if (PAPEIS.includes(p.papel)) {
+      await env.DB.prepare("UPDATE coordenadores SET papel = ? WHERE id = ?").bind(p.papel, id).run();
+    }
+    await registrarAcesso(env, request, quem, `alterou o membro #${id} da equipe (${JSON.stringify(p)})`);
     return json({ ok: true });
   }
 
@@ -294,16 +400,26 @@ export default {
       }
       if (pathname === "/api/cadastro" && request.method === "POST") return cadastrar(request, env);
 
+      if (pathname === "/api/login" && request.method === "POST") return login(request, env);
+
       if (pathname.startsWith("/api/admin/")) {
         const quem = await perfil(request, env);
-        if (!quem) return json({ error: "Chave de acesso inválida." }, 401);
+        if (!quem) return json({ error: "Sessão expirada. Entre novamente." }, 401);
         if (pathname === "/api/admin/eu") return json(quem);
+        if (pathname === "/api/admin/sair") {
+          const token = (request.headers.get("authorization") || "").replace(/^Bearer\s+/i, "");
+          await env.DB.prepare("DELETE FROM sessoes WHERE token_hash = ?").bind(await sha256(token)).run();
+          return json({ ok: true });
+        }
+        if (pathname === "/api/admin/senha" && request.method === "POST") return trocarSenha(request, env, quem);
+        // Enquanto usar a senha inicial, só pode trocar a senha.
+        if (quem.trocar_senha) return json({ error: "Troque a senha inicial para continuar." }, 403);
         if (pathname === "/api/admin/acessos") {
           if (quem.tipo !== "admin") return json({ error: "Acesso negado." }, 403);
           const { results } = await env.DB.prepare("SELECT * FROM acessos ORDER BY id DESC LIMIT 200").all();
           return json(results);
         }
-        if (pathname.startsWith("/api/admin/coordenadores")) return coordenadores(request, env, url, quem);
+        if (pathname.startsWith("/api/admin/equipe")) return equipe(request, env, url, quem);
         if (pathname.startsWith("/api/admin/fiscais")) return fiscais(request, env, url, quem, ctx);
       }
       if (pathname.startsWith("/api/")) return json({ error: "Não encontrado." }, 404);

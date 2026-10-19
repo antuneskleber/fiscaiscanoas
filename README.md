@@ -2,7 +2,7 @@
 
 Cadastro de fiscais voluntários do PT Canoas para o 2º turno (25/10/2026).
 Produção: https://fiscoptcanoas.pages.dev (Cloudflare Pages) · Painel: `/admin.html` (ADMIN_KEY)
-Cadastro só por link de convite de coordenador (`/?c=CÓDIGO`), criado na aba Coordenadores do painel.
+Cadastro só por link de convite (`/?c=CÓDIGO`). Equipe entra no painel com WhatsApp + senha (inicial: iniciais do nome + 4 últimos dígitos do celular, troca obrigatória no 1º acesso); papéis: admin master, administrador e coordenador. Prints das telas em `docs/prints/`.
 
 ## Estrutura
 - `src/worker.js` — API (Cloudflare Worker + D1 `fiscaiscanoas-db`)

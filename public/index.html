@@ -227,7 +227,7 @@ $("#form").addEventListener("submit", async e => {
       <div><b>Seção</b> ${res.secao ?? "Qualquer seção do local"}</div>
       <div><b>Data</b> 25/10/2026 (domingo)</div>`;
     $("#aguarda").textContent = `Agora é só aguardar: ${res.coordenador} vai revisar e aprovar seu cadastro. Depois a coordenação chama você no WhatsApp com as orientações e a credencial.`;
-    $("#share").href = "https://wa.me/?text=" + encodeURIComponent(`Seja fiscal voluntário(a) do PT Canoas no 2º turno, dia 25/10! Cadastre-se: ${location.href}`);
+    $("#share").href = "https://wa.me/?text=" + encodeURIComponent(`Seja fiscal voluntário(a) do PT Canoas no 2º turno, dia 25/10! Cadastre-se: https://fiscoptcanoas.pages.dev/${location.search}`);
     $("#formCard").hidden = true; $("#doneCard").hidden = false; scrollTo(0, 0);
   } catch {
     erro("Sem conexão. Tente novamente.");
