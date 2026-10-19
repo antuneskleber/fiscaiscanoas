@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.2.0 - 2026-10-19
+
+- Cadastro somente por convite: cada coordenador tem um link pessoal (`/?c=CÓDIGO`); o fiscal entra como "pendente" até ser aprovado por quem indicou (migração `0004_coordenadores.sql`).
+- CPF obrigatório no cadastro, com validação dos dígitos e sem duplicidade.
+- Painel com dois perfis: coordenação geral (`ADMIN_KEY`) e coordenador (chave pessoal gerada no painel), que vê só os próprios indicados, com CPF mascarado, e apenas aprova ou recusa.
+- Nova aba Coordenadores (criar, copiar link de convite, gerar nova chave, desativar) e aba Acessos (registro de quem abriu, alterou ou exportou a lista).
+- Proteção de dados: removida a página `/consulta.html` e a `CONSULTA_KEY`; mensagens de erro não revelam se um CPF ou WhatsApp já está cadastrado; cabeçalhos de segurança (`public/_headers`); saída automática do painel após 30 min sem uso; página 404.
+- Mensagem por WhatsApp passa a ser enviada só após a aprovação; removido o botão de autoconfirmação da tela de sucesso.
+
 ## 1.1.0 - 2026-10-19
 
 - Nova página `/consulta.html` (modo leitura e busca do sistema antigo): cards por local com zona, endereço (link para o mapa), seções, fiscais e botões Ligar/WhatsApp; abas Todos / Com fiscal / Sem fiscal / Zona; busca sem acento por local, bairro, seção ou nome. Protegida pela chave só de leitura `CONSULTA_KEY`.

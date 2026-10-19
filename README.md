@@ -1,12 +1,13 @@
 # Fiscais PT Canoas
 
 Cadastro de fiscais voluntários do PT Canoas para o 2º turno (25/10/2026).
-Produção: https://fiscoptcanoas.pages.dev (Cloudflare Pages) · Painel: `/admin.html` (ADMIN_KEY) · Consulta: `/consulta.html` (CONSULTA_KEY, só leitura)
+Produção: https://fiscoptcanoas.pages.dev (Cloudflare Pages) · Painel: `/admin.html` (ADMIN_KEY)
+Cadastro só por link de convite de coordenador (`/?c=CÓDIGO`), criado na aba Coordenadores do painel.
 
 ## Estrutura
 - `src/worker.js` — API (Cloudflare Worker + D1 `fiscaiscanoas-db`)
 - `src/locais.json` — locais e seções de Canoas (TSE 2026), gerado por `scripts/build_locais.py`
-- `public/` — formulário (`index.html`), painel da coordenação (`admin.html`) e consulta (`consulta.html`)
+- `public/` — formulário (`index.html`), painel (`admin.html`) e cabeçalhos de segurança (`_headers`)
 - `migrations/` — schema D1
 
 ## Comandos

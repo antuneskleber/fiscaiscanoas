@@ -46,6 +46,7 @@
   .submit:disabled { opacity: .6; }
   .msg { margin-top: 14px; padding: 12px; border-radius: 10px; font-size: .95rem; display: none; }
   .msg.err { display: block; background: #fdecea; color: var(--err); }
+  .convite { background: #fff6d6; border-radius: 10px; padding: 10px 12px; margin-bottom: 16px; font-size: .95rem; }
   .hp { position: absolute; left: -9999px; }
   .done { text-align: center; }
   .done .check { width: 64px; height: 64px; border-radius: 50%; background: var(--ok); color: #fff; display: grid; place-items: center; margin: 0 auto 12px; font-size: 34px; }
@@ -70,10 +71,19 @@
 </header>
 
 <main>
-  <section class="card" id="formCard">
+  <section class="card" id="semConvite" hidden>
+    <h2 style="margin-top:0">Cadastro somente por convite</h2>
+    <p>Para se cadastrar como fiscal, use o link enviado pelo coordenador que indicou você. Se ainda não tem o link, peça a ele.</p>
+  </section>
+
+  <section class="card" id="formCard" hidden>
+    <div class="convite" id="convite"></div>
     <form id="form" novalidate>
       <label for="nome">Nome completo</label>
       <input id="nome" name="nome" autocomplete="name" required placeholder="Ex.: Maria da Silva Souza">
+
+      <label for="cpf">CPF</label>
+      <input id="cpf" name="cpf" inputmode="numeric" autocomplete="off" required placeholder="000.000.000-00">
 
       <label for="telefone">WhatsApp</label>
       <input id="telefone" name="telefone" type="tel" inputmode="numeric" autocomplete="tel-national" required placeholder="(51) 99999-9999">
@@ -100,20 +110,44 @@
 
   <section class="card done" id="doneCard" hidden>
     <div class="check">✓</div>
-    <h2>Cadastro confirmado!</h2>
-    <p>Obrigado por defender o voto. A coordenação vai chamar você no WhatsApp com as orientações e a credencial.</p>
+    <h2>Cadastro recebido!</h2>
+    <p id="aguarda"></p>
     <div class="resumo" id="resumo"></div>
-    <a class="btn2 wa" id="minhaConf" target="_blank" rel="noopener">Salvar confirmação no meu WhatsApp</a>
     <a class="btn2" id="share" target="_blank" rel="noopener">Convidar mais fiscais pelo WhatsApp</a>
     <button class="btn2" type="button" onclick="location.reload()">Cadastrar outra pessoa</button>
   </section>
 
-  <footer>Seus dados são usados apenas pela coordenação de fiscalização do PT Canoas.<br>Locais e seções: TSE 2026.</footer>
+  <footer>Seus dados (inclusive o CPF) são usados apenas pela coordenação de fiscalização do PT Canoas para a credencial de fiscal e não são exibidos publicamente.<br>Locais e seções: TSE 2026.</footer>
 </main>
 
 <script>
 const $ = s => document.querySelector(s);
 let dados = null, zona = null;
+const convite = (new URLSearchParams(location.search).get("c") || "").trim().toLowerCase();
+
+const fmtCpf = v => {
+  const d = v.replace(/\D/g, "").slice(0, 11);
+  return d.replace(/^(\d{3})(\d)/, "$1.$2").replace(/^(\d{3})\.(\d{3})(\d)/, "$1.$2.$3").replace(/\.(\d{3})(\d{1,2})$/, ".$1-$2");
+};
+function cpfValido(v) {
+  const d = v.replace(/\D/g, "");
+  if (d.length !== 11 || /^(\d)\1{10}$/.test(d)) return false;
+  return [9, 10].every(t => {
+    let soma = 0;
+    for (let i = 0; i < t; i++) soma += Number(d[i]) * (t + 1 - i);
+    return ((soma * 10) % 11) % 10 === Number(d[t]);
+  });
+}
+$("#cpf").addEventListener("input", e => { e.target.value = fmtCpf(e.target.value); });
+
+async function validarConvite() {
+  const r = convite ? await fetch(`/api/convite/${encodeURIComponent(convite)}`) : null;
+  if (!r || !r.ok) { $("#semConvite").hidden = false; return false; }
+  const { coordenador } = await r.json();
+  $("#convite").textContent = `Indicação de ${coordenador}. Seu cadastro será aprovado por quem indicou você.`;
+  $("#formCard").hidden = false;
+  return true;
+}
 
 const fmtTel = v => {
   const d = v.replace(/\D/g, "").slice(0, 11);
@@ -172,6 +206,7 @@ $("#form").addEventListener("submit", async e => {
   const f = e.target;
   const erro = t => { msg.textContent = t; msg.className = "msg err"; };
   if (f.nome.value.trim().split(/\s+/).length < 2) return erro("Informe seu nome completo (nome e sobrenome).");
+  if (!cpfValido(f.cpf.value)) return erro("CPF inválido. Confira os números.");
   if (f.telefone.value.replace(/\D/g, "").length < 10) return erro("Informe o WhatsApp com DDD.");
   if (!zona) return erro("Escolha a zona eleitoral.");
   if (!f.local.value) return erro("Escolha o local de votação.");
@@ -180,7 +215,7 @@ $("#form").addEventListener("submit", async e => {
   try {
     const r = await fetch("/api/cadastro", {
       method: "POST", headers: { "content-type": "application/json" },
-      body: JSON.stringify({ nome: f.nome.value, telefone: f.telefone.value, zona, local_id: f.local.value, secao: f.secao.value, site: f.site.value }),
+      body: JSON.stringify({ convite, nome: f.nome.value, cpf: f.cpf.value, telefone: f.telefone.value, zona, local_id: f.local.value, secao: f.secao.value, site: f.site.value }),
     });
     const res = await r.json();
     if (!r.ok) { erro(res.error || "Não foi possível salvar."); if (r.status === 409) carregar(); return; }
@@ -191,22 +226,8 @@ $("#form").addEventListener("submit", async e => {
       <div><b>Endereço</b> ${res.endereco} · ${res.bairro}</div>
       <div><b>Seção</b> ${res.secao ?? "Qualquer seção do local"}</div>
       <div><b>Data</b> 25/10/2026 (domingo)</div>`;
-    const tel = "55" + f.telefone.value.replace(/\D/g, "");
-    const conf = `✅ *Cadastro confirmado – Fiscal PT Canoas*
-
-` +
-      `Olá, ${f.nome.value.trim().split(/\s+/)[0]}! Você está inscrito(a) como fiscal voluntário(a) no 2º turno.
-
-` +
-      `🗳️ *Domingo, 25/10/2026*
-📍 Zona ${res.zona} – ${res.local}
-${res.endereco} · ${res.bairro}
-` +
-      `🔢 Seção: ${res.secao ?? "qualquer seção do local"}
-
-A coordenação vai entrar em contato com as orientações e a credencial. ⭐`;
-    $("#minhaConf").href = `https://wa.me/${tel}?text=${encodeURIComponent(conf)}`;
-    $("#share").href = "https://wa.me/?text=" + encodeURIComponent(`Seja fiscal voluntário(a) do PT Canoas no 2º turno, dia 25/10! Cadastre-se: ${location.origin}`);
+    $("#aguarda").textContent = `Agora é só aguardar: ${res.coordenador} vai revisar e aprovar seu cadastro. Depois a coordenação chama você no WhatsApp com as orientações e a credencial.`;
+    $("#share").href = "https://wa.me/?text=" + encodeURIComponent(`Seja fiscal voluntário(a) do PT Canoas no 2º turno, dia 25/10! Cadastre-se: ${location.href}`);
     $("#formCard").hidden = true; $("#doneCard").hidden = false; scrollTo(0, 0);
   } catch {
     erro("Sem conexão. Tente novamente.");
@@ -215,7 +236,7 @@ A coordenação vai entrar em contato com as orientações e a credencial. ⭐`;
   }
 });
 
-carregar().catch(() => { $("#msg").textContent = "Não foi possível carregar os locais. Recarregue a página."; $("#msg").className = "msg err"; });
+validarConvite().then(ok => ok && carregar()).catch(() => { $("#msg").textContent = "Não foi possível carregar os locais. Recarregue a página."; $("#msg").className = "msg err"; });
 </script>
 </body>
 </html>

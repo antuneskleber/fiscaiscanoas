@@ -7,48 +7,45 @@
 <title>Coordenação · Fiscais PT Canoas</title>
 <meta name="theme-color" content="#C4161C">
 <style>
-  :root { --red: #C4161C; --bg: #f6f3f2; --card: #fff; --ink: #1d1b1b; --muted: #6b6464; --line: #e3dcda; --ok: #17803d; --warn: #b26a00; }
+  :root { --red: #C4161C; --bg: #f6f3f2; --card: #fff; --ink: #1d1b1b; --muted: #6b6464; --line: #e3dcda; --ok: #17803d; --warn: #b26a00; --wa: #1fa855; }
   * { box-sizing: border-box; }
   body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
   header { background: var(--red); color: #fff; padding: calc(14px + env(safe-area-inset-top)) 16px 14px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
   header h1 { margin: 0; font-size: 1.15rem; }
+  header .who { font-size: .85rem; opacity: .9; }
   header button { background: transparent; border: 1px solid rgba(255,255,255,.6); color: #fff; border-radius: 8px; padding: 6px 10px; font: inherit; cursor: pointer; }
-  main { max-width: 1100px; margin: 0 auto; padding: 16px; }
+  main { max-width: 1180px; margin: 0 auto; padding: 16px; }
   .card { background: var(--card); border-radius: 14px; padding: 16px; box-shadow: 0 4px 16px rgba(60,20,20,.06); margin-bottom: 16px; }
   input, select { font: inherit; font-size: 16px; padding: 10px; border: 1.5px solid var(--line); border-radius: 9px; background: #fff; color: var(--ink); width: 100%; }
   button.p { background: var(--red); color: #fff; border: 0; border-radius: 9px; padding: 11px 14px; font: inherit; font-weight: 700; cursor: pointer; }
+  button.p:disabled { opacity: .5; }
   button.s { background: #fff; color: var(--ink); border: 1.5px solid var(--line); border-radius: 9px; padding: 9px 12px; font: inherit; cursor: pointer; }
-  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+  button.sm { padding: 4px 9px; font-size: .85rem; }
+  button.ok { background: var(--ok); color: #fff; border: 0; border-radius: 8px; padding: 5px 10px; font: inherit; font-size: .85rem; cursor: pointer; }
+  button.no { background: #fff; color: var(--red); border: 1.5px solid #f0c4c4; border-radius: 8px; padding: 4px 10px; font: inherit; font-size: .85rem; cursor: pointer; }
+  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 16px; }
   .kpi { background: var(--card); border-radius: 14px; padding: 14px; box-shadow: 0 4px 16px rgba(60,20,20,.06); }
   .kpi span { color: var(--muted); font-size: .85rem; }
   .kpi strong { display: block; font-size: 1.7rem; font-variant-numeric: tabular-nums; }
   .bar { height: 6px; background: var(--line); border-radius: 3px; margin-top: 6px; overflow: hidden; }
   .bar i { display: block; height: 100%; background: var(--ok); }
-  .filters { display: grid; grid-template-columns: 1fr; gap: 8px; }
-  @media (min-width: 720px) { .filters { grid-template-columns: 2fr 1fr 1.6fr auto auto; } }
-  .rep { display: grid; gap: 22px; }
-  @media (min-width: 900px) { .rep { grid-template-columns: 1fr 1fr; } }
-  .rep h3 { margin: 0 0 10px; font-size: 1rem; }
-  .btns { display: flex; flex-wrap: wrap; gap: 8px; }
-  .wa-btn { background: #1fa855; color: #fff; border: 0; border-radius: 8px; padding: 5px 9px; font: inherit; font-size: .85rem; cursor: pointer; white-space: nowrap; }
-  .sent { color: var(--ok); font-size: .85rem; white-space: nowrap; }
-  .dias { display: flex; align-items: flex-end; gap: 4px; height: 120px; border-bottom: 1px solid var(--line); margin-top: 20px; }
-  .dias div { flex: 1; background: var(--red); border-radius: 4px 4px 0 0; min-height: 2px; position: relative; }
-  .dias div span { position: absolute; top: -18px; left: 0; right: 0; text-align: center; font-size: .75rem; color: var(--ink); }
-  .dlbl { display: flex; gap: 4px; font-size: .7rem; color: var(--muted); } .dlbl span { flex: 1; text-align: center; }
   .tabs { display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap; }
   .tabs button[aria-pressed="true"] { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .filters { display: grid; grid-template-columns: 1fr; gap: 8px; margin-bottom: 14px; }
+  @media (min-width: 760px) { .filters { grid-template-columns: 2fr repeat(3, 1fr) auto auto; } }
   table { width: 100%; border-collapse: collapse; }
   th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
   th { font-size: .8rem; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .03em; }
   td.n { font-variant-numeric: tabular-nums; }
-  .wa { color: var(--ok); font-weight: 600; text-decoration: none; white-space: nowrap; }
-  .act { display: flex; gap: 6px; }
-  .act button { padding: 5px 9px; font-size: .85rem; }
+  .wa { color: var(--wa); font-weight: 600; text-decoration: none; white-space: nowrap; }
+  .act { display: flex; gap: 6px; flex-wrap: wrap; }
   .muted { color: var(--muted); }
-  .pill { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: .8rem; font-weight: 600; }
-  .pill.ok { background: #e3f4e8; color: var(--ok); } .pill.part { background: #fff2dc; color: var(--warn); } .pill.zero { background: #fdecea; color: var(--red); }
-  @media (max-width: 719px) {
+  .small { font-size: .82rem; }
+  .pill { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: .8rem; font-weight: 600; white-space: nowrap; }
+  .pill.ok, .pill.aprovado { background: #e3f4e8; color: var(--ok); }
+  .pill.part, .pill.pendente { background: #fff2dc; color: var(--warn); }
+  .pill.zero, .pill.recusado { background: #fdecea; color: var(--red); }
+  @media (max-width: 759px) {
     thead { display: none; }
     tr { display: block; border-bottom: 1px solid var(--line); padding: 8px 0; }
     td { display: block; border: 0; padding: 2px 0; }
@@ -57,44 +54,53 @@
   #login { max-width: 380px; margin: 60px auto; }
   #login p { color: var(--muted); }
   .err { color: var(--red); margin-top: 8px; min-height: 1.2em; }
-  dialog { border: 0; border-radius: 14px; padding: 18px; width: min(440px, calc(100vw - 32px)); }
+  dialog { border: 0; border-radius: 14px; padding: 18px; width: min(460px, calc(100vw - 32px)); }
   dialog::backdrop { background: rgba(0,0,0,.4); }
   dialog label { display: block; font-weight: 600; margin: 10px 0 4px; }
   dialog .row { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
+  .rep { display: grid; gap: 22px; }
+  @media (min-width: 900px) { .rep { grid-template-columns: 1fr 1fr; } }
+  .rep h3, .card h3 { margin: 0 0 10px; font-size: 1rem; }
+  .btns { display: flex; flex-wrap: wrap; gap: 8px; }
+  .wa-btn { background: var(--wa); color: #fff; border: 0; border-radius: 8px; padding: 5px 9px; font: inherit; font-size: .85rem; cursor: pointer; white-space: nowrap; }
+  .sent { color: var(--ok); font-size: .85rem; white-space: nowrap; }
+  .dias { display: flex; align-items: flex-end; gap: 4px; height: 120px; border-bottom: 1px solid var(--line); margin-top: 20px; }
+  .dias div { flex: 1; background: var(--red); border-radius: 4px 4px 0 0; min-height: 2px; position: relative; }
+  .dias div span { position: absolute; top: -18px; left: 0; right: 0; text-align: center; font-size: .75rem; color: var(--ink); }
+  .dlbl { display: flex; gap: 4px; font-size: .7rem; color: var(--muted); } .dlbl span { flex: 1; text-align: center; }
+  .novoCoord { display: flex; gap: 8px; margin-bottom: 14px; }
+  .segredo { background: #fff6d6; border-radius: 10px; padding: 12px; margin-bottom: 14px; }
+  .segredo code { display: block; background: #fff; border: 1px solid var(--line); border-radius: 6px; padding: 6px 8px; margin: 4px 0 8px; word-break: break-all; font-size: .9rem; }
+  .aviso { background: #fff2dc; border-radius: 10px; padding: 10px 12px; margin-bottom: 14px; font-size: .9rem; }
 </style>
 </head>
 <body>
 <header>
-  <h1>★ Coordenação de Fiscais · 25/10/2026</h1>
-  <div><a href="/consulta.html" style="color:#fff;margin-right:12px">Consulta</a><button id="sair" hidden>Sair</button></div>
+  <div><h1>★ Fiscais PT Canoas · 25/10/2026</h1><div class="who" id="quem"></div></div>
+  <button id="sair" hidden>Sair</button>
 </header>
 
 <main>
   <section class="card" id="login">
     <h2>Acesso restrito</h2>
-    <p>Informe a chave de coordenação.</p>
+    <p>Informe sua chave de acesso (coordenação geral ou coordenador).</p>
     <form id="loginForm"><input id="chave" type="password" autocomplete="current-password" placeholder="Chave de acesso"><br><br><button class="p" style="width:100%">Entrar</button></form>
     <div class="err" id="loginErr"></div>
   </section>
 
   <div id="app" hidden>
     <div class="kpis" id="kpis"></div>
-    <br>
     <section class="card">
-      <div class="tabs" id="tabs">
-        <button class="s" data-v="fiscais" aria-pressed="true">Fiscais</button>
-        <button class="s" data-v="locais" aria-pressed="false">Cobertura por local</button>
-        <button class="s" data-v="relatorios" aria-pressed="false">Relatórios</button>
-      </div>
-      <div class="filters">
-        <input id="busca" placeholder="Buscar nome, telefone, local ou seção">
+      <div class="tabs" id="tabs"></div>
+      <div class="filters" id="filtros">
+        <input id="busca" placeholder="Buscar nome, CPF, telefone, local ou seção">
         <select id="fZona"><option value="">Todas as zonas</option><option value="66">Zona 66</option><option value="134">Zona 134</option></select>
+        <select id="fStatus"><option value="">Todos os status</option><option value="pendente">Pendentes</option><option value="aprovado">Aprovados</option><option value="recusado">Recusados</option></select>
         <select id="fCob"><option value="">Toda cobertura</option><option value="zero">Locais sem fiscal</option><option value="part">Parcialmente cobertos</option><option value="ok">Totalmente cobertos</option></select>
-        <select id="fConf"><option value="">Todas as confirmações</option><option value="pend">Confirmação pendente</option><option value="ok">Confirmação enviada</option></select>
-        <button class="p" id="proxima">Enviar próxima confirmação</button>
+        <select id="fConf"><option value="">Mensagem: todas</option><option value="pend">Mensagem pendente</option><option value="ok">Mensagem enviada</option></select>
+        <button class="p" id="proxima">Enviar próxima mensagem</button>
         <button class="s" id="novo">+ Cadastrar fiscal</button>
       </div>
-      <br>
       <div id="lista"></div>
     </section>
   </div>
@@ -103,11 +109,13 @@
 <dialog id="dlg">
   <form method="dialog" id="editForm">
     <h3 style="margin:0" id="dlgTitulo">Editar fiscal</h3>
-    <label>Nome</label><input name="nome">
+    <label>Nome completo</label><input name="nome">
+    <label>CPF</label><input name="cpf" inputmode="numeric">
     <label>WhatsApp</label><input name="telefone" type="tel">
     <label>Zona</label><select name="zona"><option>66</option><option>134</option></select>
     <label>Local</label><select name="local_id"></select>
     <label>Seção</label><select name="secao"></select>
+    <label>Indicado por</label><select name="coordenador_id"></select>
     <div class="err" id="editErr"></div>
     <div class="row"><button class="s" value="cancel" formnovalidate>Cancelar</button><button class="p" id="salvar" value="ok">Salvar</button></div>
   </form>
@@ -116,113 +124,196 @@
 <script>
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-let chave = "";
-try { chave = sessionStorage.getItem("fiscais_chave") || ""; } catch {}
-let fiscais = [], locais = [], vista = "fiscais";
-
 const norm = v => String(v ?? "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
 const telFmt = t => { const d = String(t).replace(/^55/, ""); return d.length === 11 ? `(${d.slice(0,2)}) ${d.slice(2,7)}-${d.slice(7)}` : `(${d.slice(0,2)}) ${d.slice(2,6)}-${d.slice(6)}`; };
+const cpfFmt = c => !c ? "" : c.includes("*") ? c : `${c.slice(0,3)}.${c.slice(3,6)}.${c.slice(6,9)}-${c.slice(9)}`;
+const dataCurta = iso => new Date(iso).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
+const pct = (a, b) => b ? Math.round(a / b * 100) : 0;
+
+let chave = "";
+try { chave = sessionStorage.getItem("fiscais_chave") || ""; } catch {}
+let eu = null, fiscais = [], locais = [], coords = [], vista = "fiscais";
+const isAdmin = () => eu?.tipo === "admin";
+
 const api = (path, opt = {}) => fetch(path, { ...opt, headers: { "content-type": "application/json", authorization: `Bearer ${chave}`, ...(opt.headers || {}) } });
+const registrarExport = tipo => api("/api/admin/fiscais/exportou", { method: "POST", body: JSON.stringify({ tipo }) });
 
 async function carregar() {
-  const [rf, rl] = await Promise.all([api("/api/admin/fiscais"), fetch("/api/locais")]);
-  if (rf.status === 401) { sair(); $("#loginErr").textContent = "Chave inválida."; return; }
+  const re = await api("/api/admin/eu");
+  if (re.status === 401) { sair(); $("#loginErr").textContent = "Chave inválida."; return; }
+  eu = await re.json();
+  const [rf, rl, rc] = await Promise.all([
+    api("/api/admin/fiscais"), fetch("/api/locais"), isAdmin() ? api("/api/admin/coordenadores") : null,
+  ]);
   fiscais = await rf.json();
   locais = (await rl.json()).locais;
+  coords = rc ? await rc.json() : [];
   $("#login").hidden = true; $("#app").hidden = false; $("#sair").hidden = false;
+  $("#quem").textContent = isAdmin() ? "Coordenação geral" : `Coordenador(a): ${eu.nome}`;
+  const abas = isAdmin()
+    ? [["fiscais", "Fiscais"], ["locais", "Cobertura por local"], ["coords", "Coordenadores"], ["relatorios", "Relatórios"], ["acessos", "Acessos"]]
+    : [["fiscais", "Meus indicados"]];
+  if (!abas.some(([v]) => v === vista)) vista = "fiscais";
+  $("#tabs").innerHTML = abas.map(([v, t]) => `<button class="s" data-v="${v}" aria-pressed="${v === vista}">${t}</button>`).join("");
   render();
 }
 
+const ativos = () => fiscais.filter(f => f.status !== "recusado");
+const localDe = f => locais.find(l => l.zona === f.zona && l.id === f.local_id) || {};
+
 function cobertura(l) {
-  const fs = fiscais.filter(f => f.zona === l.zona && f.local_id === l.id);
+  const fs = ativos().filter(f => f.zona === l.zona && f.local_id === l.id);
   const cobertas = new Set(fs.filter(f => f.secao != null).map(f => f.secao));
   const volantes = fs.filter(f => f.secao == null).length;
   const status = fs.length === 0 ? "zero" : (cobertas.size >= l.secoes.length ? "ok" : "part");
   return { fs, cobertas: cobertas.size, volantes, status };
 }
 
-function render() {
-  const totalSec = locais.reduce((n, l) => n + l.secoes.length, 0);
-  const cobs = locais.map(cobertura);
-  const secCob = cobs.reduce((n, c) => n + c.cobertas, 0);
-  const locCom = cobs.filter(c => c.fs.length).length;
-  const pct = (a, b) => b ? Math.round(a / b * 100) : 0;
-  $("#kpis").innerHTML = [
-    ["Fiscais cadastrados", fiscais.length, null],
-    ["Seções com fiscal", `${secCob}/${totalSec}`, pct(secCob, totalSec)],
-    ["Locais com fiscal", `${locCom}/${locais.length}`, pct(locCom, locais.length)],
-    ["Fiscais volantes", fiscais.filter(f => f.secao == null).length, null],
-  ].map(([t, v, p]) => `<div class="kpi"><span>${t}</span><strong>${v}</strong>${p != null ? `<div class="bar"><i style="width:${p}%"></i></div>` : ""}</div>`).join("");
+function kpis(cobs) {
+  const n = s => fiscais.filter(f => f.status === s).length;
+  let itens;
+  if (isAdmin()) {
+    const totalSec = locais.reduce((a, l) => a + l.secoes.length, 0);
+    const secCob = cobs.reduce((a, c) => a + c.cobertas, 0);
+    const locCom = cobs.filter(c => c.fs.length).length;
+    itens = [
+      ["Fiscais (sem recusados)", ativos().length, null],
+      ["Pendentes de aprovação", n("pendente"), null],
+      ["Seções com fiscal", `${secCob}/${totalSec}`, pct(secCob, totalSec)],
+      ["Locais com fiscal", `${locCom}/${locais.length}`, pct(locCom, locais.length)],
+    ];
+  } else {
+    itens = [["Meus indicados", fiscais.length, null], ["Pendentes", n("pendente"), null], ["Aprovados", n("aprovado"), null], ["Recusados", n("recusado"), null]];
+  }
+  $("#kpis").innerHTML = itens.map(([t, v, p]) => `<div class="kpi"><span>${t}</span><strong>${v}</strong>${p != null ? `<div class="bar"><i style="width:${p}%"></i></div>` : ""}</div>`).join("");
+}
 
+function render() {
+  const cobs = locais.map(cobertura);
+  kpis(cobs);
+  const mostra = (sel, cond) => { $(sel).style.display = cond ? "" : "none"; };
+  mostra("#filtros", vista === "fiscais" || vista === "locais");
+  mostra("#fStatus", vista === "fiscais");
+  mostra("#fCob", vista === "locais");
+  mostra("#fConf", vista === "fiscais" && isAdmin());
+  mostra("#proxima", vista === "fiscais" && isAdmin());
+  mostra("#novo", vista === "fiscais" && isAdmin());
+  const pend = fiscais.filter(f => f.status === "aprovado" && !f.confirmado_em).length;
+  $("#proxima").textContent = pend ? `Enviar próxima mensagem (${pend})` : "Mensagens enviadas ✓";
+  $("#proxima").disabled = !pend;
+
+  if (vista === "fiscais") return renderFiscais();
+  if (vista === "locais") return renderLocais(cobs);
+  if (vista === "coords") return renderCoords();
+  if (vista === "relatorios") return renderRelatorios(cobs);
+  if (vista === "acessos") return renderAcessos();
+}
+
+function filtrados() {
+  const q = norm($("#busca").value.trim());
+  const z = Number($("#fZona").value) || null;
+  const st = $("#fStatus").value, c = $("#fConf").value;
+  return fiscais.filter(f => (!z || f.zona === z) && (!st || f.status === st)
+    && (!c || (c === "ok") === !!f.confirmado_em)
+    && (!q || norm(`${f.nome} ${f.cpf} ${cpfFmt(f.cpf)} ${f.telefone} ${telFmt(f.telefone)} ${f.local_nome} ${f.secao ?? ""} ${f.coordenador_nome ?? ""}`).includes(q)));
+}
+
+function renderFiscais() {
+  const rows = filtrados();
+  const statusCel = f => `<span class="pill ${f.status}">${f.status}</span>
+    <div class="act" style="margin-top:4px">${f.status !== "aprovado" ? `<button class="ok" data-st="aprovado" data-id="${f.id}">Aprovar</button>` : ""}${f.status !== "recusado" ? `<button class="no" data-st="recusado" data-id="${f.id}">Recusar</button>` : ""}</div>`;
+  const msgCel = f => f.status !== "aprovado" ? '<span class="muted small">após aprovar</span>' : f.confirmado_em
+    ? `<span class="sent">✓ enviada ${dataCurta(f.confirmado_em)}</span> <button class="s sm" data-reenviar="${f.id}">reenviar</button>`
+    : `<button class="wa-btn" data-conf="${f.id}">Enviar no WhatsApp</button>`;
+  $("#lista").innerHTML = rows.length ? `<table><thead><tr><th>Nome</th><th>WhatsApp</th><th>Local / seção</th>${isAdmin() ? "<th>Indicado por</th>" : ""}<th>Status</th>${isAdmin() ? "<th>Mensagem</th><th></th>" : ""}</tr></thead><tbody>${rows.map(f => `
+    <tr><td><strong>${esc(f.nome)}</strong><br><span class="muted small">CPF ${esc(cpfFmt(f.cpf)) || "—"} · cadastro ${dataCurta(f.criado_em)}</span></td>
+    <td data-l="WhatsApp"><a class="wa" href="https://wa.me/${f.telefone}" target="_blank" rel="noopener">${telFmt(f.telefone)}</a> <a href="tel:+${f.telefone}" title="Ligar" style="text-decoration:none">📞</a></td>
+    <td data-l="Local">Zona ${f.zona} · ${esc(f.local_nome)}<br><span class="muted small">${f.secao ? `Seção ${f.secao}` : "Volante (qualquer seção)"}</span></td>
+    ${isAdmin() ? `<td data-l="Indicado por">${esc(f.coordenador_nome) || '<span class="muted">coordenação</span>'}</td>` : ""}
+    <td data-l="Status">${statusCel(f)}</td>
+    ${isAdmin() ? `<td data-l="Mensagem">${msgCel(f)}</td>
+    <td><div class="act"><button class="s sm" data-edit="${f.id}">Editar</button><button class="s sm" data-del="${f.id}">Excluir</button></div></td>` : ""}</tr>`).join("")}</tbody></table>`
+    : `<p class="muted">Nenhum fiscal encontrado.</p>`;
+}
+
+function renderLocais(cobs) {
   const q = norm($("#busca").value.trim());
   const z = Number($("#fZona").value) || null;
   const fc = $("#fCob").value;
-  $("#fCob").style.display = vista === "locais" ? "" : "none";
-  $("#fConf").style.display = $("#proxima").style.display = $("#novo").style.display = vista === "fiscais" ? "" : "none";
-  document.querySelector(".filters").style.display = vista === "relatorios" ? "none" : "";
-  const pend = fiscais.filter(f => !f.confirmado_em).length;
-  $("#proxima").textContent = pend ? `Enviar próxima confirmação (${pend})` : "Todas confirmadas ✓";
-  $("#proxima").disabled = !pend;
-  if (vista === "relatorios") return renderRelatorios(cobs);
-
-  if (vista === "fiscais") {
-    const rows = filtrados(q, z);
-    $("#lista").innerHTML = rows.length ? `<table><thead><tr><th>Nome</th><th>WhatsApp</th><th>Zona</th><th>Local</th><th>Seção</th><th>Confirmação</th><th></th></tr></thead><tbody>${rows.map(f => `
-      <tr><td><strong>${esc(f.nome)}</strong></td>
-      <td data-l="WhatsApp"><a class="wa" href="https://wa.me/${f.telefone}" target="_blank" rel="noopener">${telFmt(f.telefone)}</a> <a href="tel:+${f.telefone}" title="Ligar" style="text-decoration:none">📞</a></td>
-      <td data-l="Zona" class="n">${f.zona}</td><td data-l="Local">${esc(f.local_nome)}</td>
-      <td data-l="Seção" class="n">${f.secao ?? '<span class="muted">volante</span>'}</td>
-      <td data-l="Confirmação">${f.confirmado_em
-        ? `<span class="sent" title="${f.confirmado_via === "api" ? "automática" : "manual"}">✓ enviada ${dataCurta(f.confirmado_em)}</span> <button class="s" data-reenviar="${f.id}" style="padding:2px 7px;font-size:.8rem">reenviar</button>`
-        : `<button class="wa-btn" data-conf="${f.id}">Enviar no WhatsApp</button>`}<br><span class="muted" style="font-size:.8rem">cadastro ${dataCurta(f.criado_em)}</span></td>
-      <td><div class="act"><button class="s" data-edit="${f.id}">Editar</button><button class="s" data-del="${f.id}">Excluir</button></div></td></tr>`).join("")}</tbody></table>`
-      : `<p class="muted">Nenhum fiscal encontrado.</p>`;
-  } else {
-    const rows = locais.map((l, i) => ({ l, c: cobs[i] }))
-      .filter(({ l, c }) => (!z || l.zona === z) && (!fc || c.status === fc) && (!q || norm(`${l.nome} ${l.bairro} ${l.endereco} ${l.secoes.join(" ")}`).includes(q)));
-    const label = { ok: "completo", part: "parcial", zero: "sem fiscal" };
-    $("#lista").innerHTML = `<table><thead><tr><th>Local</th><th>Zona</th><th>Seções</th><th>Cobertura</th><th>Fiscais</th></tr></thead><tbody>${rows.map(({ l, c }) => {
-      const livres = l.secoes.filter(s => !c.fs.some(f => f.secao === s));
-      return `<tr><td><strong>${esc(l.nome)}</strong><br><span class="muted">${esc(l.endereco)} · ${esc(l.bairro)}</span></td>
-      <td data-l="Zona" class="n">${l.zona}</td>
-      <td data-l="Seções" class="n">${c.cobertas}/${l.secoes.length}${livres.length && livres.length < l.secoes.length ? `<br><span class="muted">livres: ${livres.join(", ")}</span>` : ""}</td>
-      <td data-l="Cobertura"><span class="pill ${c.status}">${label[c.status]}</span>${c.volantes ? ` <span class="muted">+${c.volantes} volante(s)</span>` : ""}</td>
-      <td data-l="Fiscais">${c.fs.map(f => `${esc(f.nome)}${f.secao ? ` <span class="muted">(${f.secao})</span>` : ""}`).join("<br>") || '<span class="muted">—</span>'}</td></tr>`;
-    }).join("")}</tbody></table>`;
-  }
+  const rows = locais.map((l, i) => ({ l, c: cobs[i] }))
+    .filter(({ l, c }) => (!z || l.zona === z) && (!fc || c.status === fc) && (!q || norm(`${l.nome} ${l.bairro} ${l.endereco} ${l.secoes.join(" ")} ${c.fs.map(f => f.nome).join(" ")}`).includes(q)));
+  const label = { ok: "completo", part: "parcial", zero: "sem fiscal" };
+  $("#lista").innerHTML = `<table><thead><tr><th>Local</th><th>Zona</th><th>Seções</th><th>Cobertura</th><th>Fiscais</th></tr></thead><tbody>${rows.map(({ l, c }) => {
+    const livres = l.secoes.filter(s => !c.fs.some(f => f.secao === s));
+    return `<tr><td><strong>${esc(l.nome)}</strong><br><span class="muted small">${esc(l.endereco)} · ${esc(l.bairro)}</span></td>
+    <td data-l="Zona" class="n">${l.zona}</td>
+    <td data-l="Seções" class="n">${c.cobertas}/${l.secoes.length}${livres.length && livres.length < l.secoes.length ? `<br><span class="muted small">livres: ${livres.join(", ")}</span>` : ""}</td>
+    <td data-l="Cobertura"><span class="pill ${c.status}">${label[c.status]}</span>${c.volantes ? ` <span class="muted small">+${c.volantes} volante(s)</span>` : ""}</td>
+    <td data-l="Fiscais">${c.fs.map(f => `${esc(f.nome)} <span class="muted small">(${f.secao ?? "volante"}${f.status === "pendente" ? ", pendente" : ""})</span>`).join("<br>") || '<span class="muted">—</span>'}</td></tr>`;
+  }).join("")}</tbody></table>`;
 }
 
-function filtrados(q, z) {
-  const c = $("#fConf").value;
-  return fiscais.filter(f => (!z || f.zona === z) && (!c || (c === "ok") === !!f.confirmado_em) && (!q || norm(`${f.nome} ${f.telefone} ${telFmt(f.telefone)} ${f.local_nome} ${f.secao ?? ""}`).includes(q)));
+// ---------- Coordenadores ----------
+let ultimoSegredo = null;
+function linkConvite(c) { return `${location.origin}/?c=${c.codigo}`; }
+function renderCoords() {
+  $("#lista").innerHTML = `
+    <div class="aviso">Cada coordenador recebe um <b>link de convite</b> (para os fiscais se cadastrarem) e uma <b>chave pessoal</b> para entrar neste painel e aprovar só os próprios indicados. A chave aparece uma única vez: envie direto à pessoa, por mensagem privada.</div>
+    <form class="novoCoord" id="formCoord"><input id="nomeCoord" placeholder="Nome do coordenador"><button class="p">Criar</button></form>
+    ${ultimoSegredo ? `<div class="segredo"><b>${esc(ultimoSegredo.nome)}</b> — copie agora, a chave não será mostrada de novo.
+      <div class="small">Link de convite (para divulgar aos fiscais):</div><code>${esc(ultimoSegredo.link)}</code>
+      <div class="small">Chave do painel (só para o coordenador):</div><code>${esc(ultimoSegredo.chave)}</code>
+      <div class="btns"><button class="s sm" data-copiar="${esc(ultimoSegredo.link)}">Copiar link</button><button class="s sm" data-copiar="${esc(ultimoSegredo.chave)}">Copiar chave</button><button class="s sm" id="fecharSegredo">Já copiei</button></div></div>` : ""}
+    ${coords.length ? `<table><thead><tr><th>Coordenador</th><th>Link de convite</th><th>Indicados</th><th>Situação</th><th></th></tr></thead><tbody>${coords.map(c => `
+      <tr><td><strong>${esc(c.nome)}</strong></td>
+      <td data-l="Link"><span class="small">${esc(linkConvite(c))}</span> <button class="s sm" data-copiar="${esc(linkConvite(c))}">Copiar</button></td>
+      <td data-l="Indicados" class="n">${c.total} <span class="muted small">(${c.pendentes} pendentes, ${c.aprovados} aprovados)</span></td>
+      <td data-l="Situação"><span class="pill ${c.ativo ? "ok" : "zero"}">${c.ativo ? "ativo" : "desativado"}</span></td>
+      <td><div class="act"><button class="s sm" data-ativo="${c.id}" data-v="${c.ativo ? 0 : 1}">${c.ativo ? "Desativar" : "Ativar"}</button><button class="s sm" data-chave="${c.id}">Nova chave</button></div></td></tr>`).join("")}</tbody></table>`
+      : '<p class="muted">Nenhum coordenador ainda. Crie o primeiro acima para gerar o link de convite.</p>'}`;
+  $("#formCoord").onsubmit = async e => {
+    e.preventDefault();
+    const nome = $("#nomeCoord").value.trim();
+    const r = await api("/api/admin/coordenadores", { method: "POST", body: JSON.stringify({ nome }) });
+    const res = await r.json();
+    if (!r.ok) return alert(res.error);
+    ultimoSegredo = { nome: res.nome, chave: res.chave, link: `${location.origin}/?c=${res.codigo}` };
+    carregar();
+  };
+  const fechar = $("#fecharSegredo"); if (fechar) fechar.onclick = () => { ultimoSegredo = null; renderCoords(); };
 }
 
-function sair() { chave = ""; try { sessionStorage.removeItem("fiscais_chave"); } catch {} $("#app").hidden = true; $("#login").hidden = false; $("#sair").hidden = true; }
-
-$("#loginForm").addEventListener("submit", e => {
-  e.preventDefault(); chave = $("#chave").value.trim(); $("#loginErr").textContent = "";
-  try { sessionStorage.setItem("fiscais_chave", chave); } catch {}
-  carregar();
-});
-$("#sair").onclick = sair;
-["#busca", "#fZona", "#fCob", "#fConf"].forEach(s => $(s).addEventListener("input", render));
-$("#tabs").addEventListener("click", e => {
-  const b = e.target.closest("button[data-v]"); if (!b) return;
-  vista = b.dataset.v; document.querySelectorAll("#tabs button").forEach(x => x.setAttribute("aria-pressed", x === b)); render();
-});
-
+// ---------- Ações nas listas ----------
 $("#lista").addEventListener("click", async e => {
-  const del = e.target.closest("[data-del]"), ed = e.target.closest("[data-edit]");
-  if (del) {
-    const f = fiscais.find(x => x.id === Number(del.dataset.del));
-    if (!confirm(`Excluir ${f.nome}?`)) return;
+  const b = e.target.closest("button"); if (!b) return;
+  const fiscal = id => fiscais.find(x => x.id === Number(id));
+  if (b.dataset.copiar) {
+    try { await navigator.clipboard.writeText(b.dataset.copiar); b.textContent = "Copiado ✓"; } catch { prompt("Copie:", b.dataset.copiar); }
+  } else if (b.dataset.st) {
+    const f = fiscal(b.dataset.id);
+    if (b.dataset.st === "recusado" && !confirm(`Recusar ${f.nome}? A seção escolhida será liberada.`)) return;
+    const r = await api(`/api/admin/fiscais/${f.id}/status`, { method: "POST", body: JSON.stringify({ status: b.dataset.st }) });
+    if (!r.ok) alert((await r.json()).error); else carregar();
+  } else if (b.dataset.del) {
+    const f = fiscal(b.dataset.del);
+    if (!confirm(`Excluir ${f.nome} definitivamente?`)) return;
     await api(`/api/admin/fiscais/${f.id}`, { method: "DELETE" }); carregar();
+  } else if (b.dataset.edit) {
+    abrirEdicao(fiscal(b.dataset.edit));
+  } else if (b.dataset.conf || b.dataset.reenviar) {
+    enviarMensagem(fiscal(b.dataset.conf || b.dataset.reenviar));
+  } else if (b.dataset.ativo) {
+    await api(`/api/admin/coordenadores/${b.dataset.ativo}`, { method: "PUT", body: JSON.stringify({ ativo: b.dataset.v === "1" }) }); carregar();
+  } else if (b.dataset.chave) {
+    const c = coords.find(x => x.id === Number(b.dataset.chave));
+    if (!confirm(`Gerar nova chave para ${c.nome}? A chave atual deixa de funcionar.`)) return;
+    const res = await (await api(`/api/admin/coordenadores/${c.id}/nova-chave`, { method: "POST" })).json();
+    ultimoSegredo = { nome: c.nome, chave: res.chave, link: linkConvite(c) };
+    renderCoords();
   }
-  if (ed) abrirEdicao(fiscais.find(x => x.id === Number(ed.dataset.edit)));
-  const cf = e.target.closest("[data-conf], [data-reenviar]");
-  if (cf) enviarConfirmacao(fiscais.find(x => x.id === Number(cf.dataset.conf || cf.dataset.reenviar)));
 });
 
+// ---------- Edição / cadastro manual ----------
 const ef = $("#editForm");
 function opcoesLocal(zona, sel) { ef.local_id.innerHTML = locais.filter(l => l.zona === zona).map(l => `<option value="${l.id}" ${l.id === sel ? "selected" : ""}>${esc(l.nome)}</option>`).join(""); }
 function opcoesSecao(sel) {
@@ -233,43 +324,42 @@ let editando = null;
 function abrirEdicao(f) {
   editando = f; $("#editErr").textContent = "";
   $("#dlgTitulo").textContent = f.id ? "Editar fiscal" : "Cadastrar fiscal";
-  ef.nome.value = f.nome; ef.telefone.value = f.telefone ? telFmt(f.telefone) : ""; ef.zona.value = f.zona;
+  ef.nome.value = f.nome; ef.cpf.value = cpfFmt(f.cpf); ef.telefone.value = f.telefone ? telFmt(f.telefone) : ""; ef.zona.value = f.zona;
+  ef.coordenador_id.innerHTML = `<option value="">Coordenação geral</option>` + coords.map(c => `<option value="${c.id}" ${c.id === f.coordenador_id ? "selected" : ""}>${esc(c.nome)}</option>`).join("");
   opcoesLocal(f.zona, f.local_id); opcoesSecao(f.secao); $("#dlg").showModal();
 }
-$("#novo").onclick = () => abrirEdicao({ nome: "", telefone: "", zona: 66, local_id: null, secao: null });
+$("#novo").onclick = () => abrirEdicao({ nome: "", cpf: "", telefone: "", zona: 66, local_id: null, secao: null, coordenador_id: null });
 ef.zona.onchange = () => { opcoesLocal(Number(ef.zona.value)); opcoesSecao(); };
 ef.local_id.onchange = () => opcoesSecao();
 $("#salvar").addEventListener("click", async e => {
   e.preventDefault();
-  const r = await api(`/api/admin/fiscais${editando.id ? "/" + editando.id : ""}`, { method: editando.id ? "PUT" : "POST", body: JSON.stringify({ nome: ef.nome.value, telefone: ef.telefone.value, zona: ef.zona.value, local_id: ef.local_id.value, secao: ef.secao.value }) });
+  const corpo = { nome: ef.nome.value, cpf: ef.cpf.value, telefone: ef.telefone.value, zona: ef.zona.value, local_id: ef.local_id.value, secao: ef.secao.value, coordenador_id: ef.coordenador_id.value };
+  const r = await api(`/api/admin/fiscais${editando.id ? "/" + editando.id : ""}`, { method: editando.id ? "PUT" : "POST", body: JSON.stringify(corpo) });
   if (!r.ok) { $("#editErr").textContent = (await r.json()).error; return; }
   $("#dlg").close(); carregar();
 });
 
-const dataCurta = iso => new Date(iso).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
-const localDe = f => locais.find(l => l.zona === f.zona && l.id === f.local_id) || {};
-
-// ---------- Confirmação por WhatsApp ----------
-function mensagemConfirmacao(f) {
+// ---------- Mensagem por WhatsApp (manual, após aprovação) ----------
+function mensagem(f) {
   const l = localDe(f);
-  return `✅ *Cadastro confirmado – Fiscal PT Canoas*\n\n` +
-    `Olá, ${f.nome.split(" ")[0]}! Obrigado por se inscrever como fiscal voluntário(a) no 2º turno.\n\n` +
+  return `✅ *Cadastro aprovado – Fiscal PT Canoas*\n\n` +
+    `Olá, ${f.nome.split(" ")[0]}! Seu cadastro como fiscal voluntário(a) no 2º turno foi aprovado.\n\n` +
     `🗳️ *Domingo, 25/10/2026*\n📍 Zona ${f.zona} – ${f.local_nome}\n${l.endereco || ""} · ${l.bairro || ""}\n` +
     `🔢 Seção: ${f.secao ?? "qualquer seção do local"}\n\n` +
     `Em breve enviaremos as orientações e a credencial. Qualquer dúvida, responda esta mensagem. ⭐`;
 }
-
-async function enviarConfirmacao(f) {
+async function enviarMensagem(f) {
   if (!f) return;
-  window.open(`https://wa.me/${f.telefone}?text=${encodeURIComponent(mensagemConfirmacao(f))}`, "_blank", "noopener");
+  window.open(`https://wa.me/${f.telefone}?text=${encodeURIComponent(mensagem(f))}`, "_blank", "noopener");
   await api(`/api/admin/fiscais/${f.id}/confirmado`, { method: "POST", body: JSON.stringify({ enviado: true }) });
-  f.confirmado_em = new Date().toISOString(); f.confirmado_via = "manual";
+  f.confirmado_em = new Date().toISOString();
   render();
 }
-$("#proxima").onclick = () => enviarConfirmacao(fiscais.find(f => !f.confirmado_em));
+$("#proxima").onclick = () => enviarMensagem(fiscais.find(f => f.status === "aprovado" && !f.confirmado_em));
 
 // ---------- Relatórios ----------
 function baixar(nome, conteudo, tipo) {
+  registrarExport(nome);
   const a = document.createElement("a");
   a.href = URL.createObjectURL(new Blob([conteudo], { type: tipo }));
   a.download = nome; a.click();
@@ -281,63 +371,65 @@ function renderRelatorios(cobs) {
   const pares = locais.map((l, i) => ({ l, c: cobs[i] }));
   const zonas = [66, 134].map(z => {
     const ls = pares.filter(x => x.l.zona === z);
-    const fz = fiscais.filter(f => f.zona === z);
+    const fz = ativos().filter(f => f.zona === z);
     const sec = ls.reduce((n, x) => n + x.l.secoes.length, 0);
     const cob = ls.reduce((n, x) => n + x.c.cobertas, 0);
-    return { z, fiscais: fz.length, conf: fz.filter(f => f.confirmado_em).length, sec, cob, locais: ls.length,
+    return { z, fiscais: fz.length, aprov: fz.filter(f => f.status === "aprovado").length, sec, cob, locais: ls.length,
       semFiscal: ls.filter(x => x.c.status === "zero").length, completos: ls.filter(x => x.c.status === "ok").length };
   });
   const semFiscal = pares.filter(x => x.c.status === "zero").sort((a, b) => b.l.secoes.length - a.l.secoes.length);
-
   const porDia = {};
-  fiscais.forEach(f => { const d = f.criado_em.slice(0, 10); porDia[d] = (porDia[d] || 0) + 1; });
+  ativos().forEach(f => { const d = f.criado_em.slice(0, 10); porDia[d] = (porDia[d] || 0) + 1; });
   const dias = Object.keys(porDia).sort().slice(-14);
   const max = Math.max(1, ...dias.map(d => porDia[d]));
 
   $("#lista").innerHTML = `<div class="rep">
-    <div><h3>Resumo por zona</h3><table><thead><tr><th>Zona</th><th>Fiscais</th><th>Seções cobertas</th><th>Locais sem fiscal</th><th>Locais completos</th><th>Confirmados</th></tr></thead><tbody>
-      ${zonas.map(z => `<tr><td><strong>Zona ${z.z}</strong></td><td data-l="Fiscais" class="n">${z.fiscais}</td>
-        <td data-l="Seções cobertas" class="n">${z.cob}/${z.sec} (${z.sec ? Math.round(z.cob / z.sec * 100) : 0}%)</td>
-        <td data-l="Locais sem fiscal" class="n">${z.semFiscal}/${z.locais}</td><td data-l="Locais completos" class="n">${z.completos}</td>
-        <td data-l="Confirmados" class="n">${z.conf}/${z.fiscais}</td></tr>`).join("")}
+    <div><h3>Resumo por zona</h3><table><thead><tr><th>Zona</th><th>Fiscais</th><th>Aprovados</th><th>Seções cobertas</th><th>Locais sem fiscal</th><th>Locais completos</th></tr></thead><tbody>
+      ${zonas.map(z => `<tr><td><strong>Zona ${z.z}</strong></td><td data-l="Fiscais" class="n">${z.fiscais}</td><td data-l="Aprovados" class="n">${z.aprov}</td>
+        <td data-l="Seções cobertas" class="n">${z.cob}/${z.sec} (${pct(z.cob, z.sec)}%)</td>
+        <td data-l="Locais sem fiscal" class="n">${z.semFiscal}/${z.locais}</td><td data-l="Locais completos" class="n">${z.completos}</td></tr>`).join("")}
     </tbody></table></div>
 
     <div><h3>Cadastros por dia</h3>${dias.length ? `<div class="dias">${dias.map(d => `<div style="height:${porDia[d] / max * 100}%"><span>${porDia[d]}</span></div>`).join("")}</div>
       <div class="dlbl">${dias.map(d => `<span>${d.slice(8)}/${d.slice(5, 7)}</span>`).join("")}</div>` : '<p class="muted">Sem cadastros ainda.</p>'}</div>
 
-    <div><h3>Baixar e imprimir</h3><div class="btns">
-      <button class="s" id="rPrint">🖨️ Relatório por local (PDF)</button>
-      <button class="s" id="rTxt">📄 Exportar TXT</button>
-      <button class="s" id="rCsv">📥 CSV de fiscais</button>
-      <button class="s" id="rDesc">📥 CSV de seções sem fiscal</button>
-      <button class="s" id="rCopy">💬 Copiar lista p/ WhatsApp</button>
-    </div></div>
+    <div><h3>Baixar e imprimir</h3>
+      <p class="muted small">Os arquivos contêm dados pessoais. Cada exportação fica registrada na aba Acessos. Não encaminhe em grupos.</p>
+      <div class="btns">
+        <button class="s" id="rPrint">🖨️ Relatório por local (PDF)</button>
+        <button class="s" id="rTxt">📄 Exportar TXT</button>
+        <button class="s" id="rCsv">📥 CSV de fiscais</button>
+        <button class="s" id="rDesc">📥 CSV de seções sem fiscal</button>
+        <button class="s" id="rCopy">💬 Copiar lista p/ WhatsApp</button>
+      </div></div>
 
     <div><h3>Locais sem nenhum fiscal (${semFiscal.length})</h3>${semFiscal.length ? `<table><tbody>${semFiscal.map(({ l }) =>
-      `<tr><td><strong>${esc(l.nome)}</strong><br><span class="muted">Zona ${l.zona} · ${esc(l.bairro)}</span></td><td class="n">${l.secoes.length} seções</td></tr>`).join("")}</tbody></table>` : '<p class="muted">Todos os locais têm fiscal. 🎉</p>'}</div>
+      `<tr><td><strong>${esc(l.nome)}</strong><br><span class="muted small">Zona ${l.zona} · ${esc(l.bairro)}</span></td><td class="n">${l.secoes.length} seções</td></tr>`).join("")}</tbody></table>` : '<p class="muted">Todos os locais têm fiscal. 🎉</p>'}</div>
   </div>`;
 
   $("#rTxt").onclick = () => baixar(`lista_fiscais_canoas_${hoje()}.txt`, textoLista(), "text/plain;charset=utf-8");
   $("#rCopy").onclick = async () => {
+    registrarExport("lista copiada");
     const t = textoLista(true);
-    try { await navigator.clipboard.writeText(t); alert("Lista copiada para colar no WhatsApp."); } catch { prompt("Copie a lista:", t); }
+    try { await navigator.clipboard.writeText(t); alert("Lista copiada."); } catch { prompt("Copie a lista:", t); }
   };
   $("#rCsv").onclick = () => baixar(`fiscais-pt-canoas-${hoje()}.csv`, "﻿" + [
-    ["Nome", "WhatsApp", "Zona", "Local", "Endereco", "Bairro", "Secao", "Cadastro", "Confirmacao enviada"],
-    ...fiscais.map(f => { const l = localDe(f); return [f.nome, telFmt(f.telefone), f.zona, f.local_nome, l.endereco, l.bairro, f.secao ?? "volante", f.criado_em, f.confirmado_em || ""]; }),
+    ["Nome", "CPF", "WhatsApp", "Zona", "Local", "Endereco", "Bairro", "Secao", "Status", "Indicado por", "Cadastro", "Mensagem enviada"],
+    ...fiscais.map(f => { const l = localDe(f); return [f.nome, cpfFmt(f.cpf), telFmt(f.telefone), f.zona, f.local_nome, l.endereco, l.bairro, f.secao ?? "volante", f.status, f.coordenador_nome || "coordenação", f.criado_em, f.confirmado_em || ""]; }),
   ].map(csvLinha).join("\r\n"), "text/csv;charset=utf-8");
   $("#rDesc").onclick = () => baixar(`secoes-sem-fiscal-${hoje()}.csv`, "﻿" + [
     ["Zona", "Local", "Endereco", "Bairro", "Secao"],
-    ...locais.flatMap(l => l.secoes.filter(s => !fiscais.some(f => f.zona === l.zona && f.secao === s)).map(s => [l.zona, l.nome, l.endereco, l.bairro, s])),
+    ...locais.flatMap(l => l.secoes.filter(s => !ativos().some(f => f.zona === l.zona && f.secao === s)).map(s => [l.zona, l.nome, l.endereco, l.bairro, s])),
   ].map(csvLinha).join("\r\n"), "text/csv;charset=utf-8");
   $("#rPrint").onclick = imprimir;
 }
 
-// Agrupado por local, no formato da lista antiga (local, fiscal, telefone).
+// Agrupado por local, no formato da lista antiga (local, fiscal, telefone). Só aprovados.
 function textoLista(negrito = false) {
   const b = t => negrito ? `*${t}*` : t;
   const grupos = {};
-  [...fiscais].sort((a, c) => a.zona - c.zona || a.local_nome.localeCompare(c.local_nome) || (a.secao ?? 1e9) - (c.secao ?? 1e9))
+  fiscais.filter(f => f.status === "aprovado")
+    .sort((a, c) => a.zona - c.zona || a.local_nome.localeCompare(c.local_nome) || (a.secao ?? 1e9) - (c.secao ?? 1e9))
     .forEach(f => (grupos[`${f.zona}:${f.local_id}`] ||= []).push(f));
   return Object.values(grupos).map(fs => {
     const l = localDe(fs[0]);
@@ -347,21 +439,54 @@ function textoLista(negrito = false) {
 }
 
 function imprimir() {
+  registrarExport("relatório impresso");
   const w = window.open("", "_blank");
   const blocos = locais.map(l => {
-    const fs = fiscais.filter(f => f.zona === l.zona && f.local_id === l.id).sort((a, c) => (a.secao ?? 1e9) - (c.secao ?? 1e9));
+    const fs = ativos().filter(f => f.zona === l.zona && f.local_id === l.id).sort((a, c) => (a.secao ?? 1e9) - (c.secao ?? 1e9));
     const livres = l.secoes.filter(s => !fs.some(f => f.secao === s));
     return `<section><h2>${esc(l.nome)} <small>Zona ${l.zona}</small></h2><p>${esc(l.endereco)} · ${esc(l.bairro)} — ${l.secoes.length} seções</p>
-      ${fs.length ? `<table><tr><th>Seção</th><th>Fiscal</th><th>WhatsApp</th><th>Conf.</th></tr>${fs.map(f => `<tr><td>${f.secao ?? "volante"}</td><td>${esc(f.nome)}</td><td>${telFmt(f.telefone)}</td><td>${f.confirmado_em ? "✓" : ""}</td></tr>`).join("")}</table>` : "<p><b>Sem fiscal</b></p>"}
+      ${fs.length ? `<table><tr><th>Seção</th><th>Fiscal</th><th>CPF</th><th>WhatsApp</th><th>Status</th></tr>${fs.map(f => `<tr><td>${f.secao ?? "volante"}</td><td>${esc(f.nome)}</td><td>${cpfFmt(f.cpf)}</td><td>${telFmt(f.telefone)}</td><td>${f.status}</td></tr>`).join("")}</table>` : "<p><b>Sem fiscal</b></p>"}
       ${livres.length && fs.length ? `<p class="l">Seções sem fiscal: ${livres.join(", ")}</p>` : ""}</section>`;
   }).join("");
   w.document.write(`<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Relatório de fiscais – PT Canoas – ${new Date().toLocaleDateString("pt-BR")}</title>
     <style>body{font:12px system-ui,sans-serif;margin:24px;color:#111}h1{font-size:18px;color:#C4161C;margin:0 0 4px}h2{font-size:13px;margin:0}h2 small{color:#666;font-weight:400}
     section{break-inside:avoid;border-top:1px solid #ccc;padding:8px 0}p{margin:2px 0 6px;color:#444}table{border-collapse:collapse;width:100%}th,td{text-align:left;padding:3px 6px;border-bottom:1px solid #eee}th{font-size:10px;color:#666}.l{color:#b26a00}</style></head>
-    <body><h1>★ Fiscais PT Canoas – 2º turno, 25/10/2026</h1><p>Gerado em ${new Date().toLocaleString("pt-BR")} · ${fiscais.length} fiscais</p>${blocos}
+    <body><h1>★ Fiscais PT Canoas – 2º turno, 25/10/2026</h1><p>Gerado em ${new Date().toLocaleString("pt-BR")} · ${ativos().length} fiscais · CONFIDENCIAL</p>${blocos}
     <script>window.onload=()=>window.print()<\/script></body></html>`);
   w.document.close();
 }
+
+// ---------- Acessos ----------
+async function renderAcessos() {
+  $("#lista").innerHTML = '<p class="muted">Carregando…</p>';
+  const rows = await (await api("/api/admin/acessos")).json();
+  $("#lista").innerHTML = `<p class="muted small">Últimos 200 registros de quem abriu, alterou ou exportou a lista.</p>
+    <table><thead><tr><th>Quando</th><th>Quem</th><th>O quê</th><th>IP</th></tr></thead><tbody>${rows.map(a =>
+    `<tr><td class="n">${dataCurta(a.em)}</td><td data-l="Quem">${esc(a.quem)}</td><td data-l="O quê">${esc(a.acao)}</td><td data-l="IP" class="muted small">${esc(a.ip)}</td></tr>`).join("")}</tbody></table>`;
+}
+
+// ---------- Sessão ----------
+function sair() {
+  chave = ""; eu = null; fiscais = [];
+  try { sessionStorage.removeItem("fiscais_chave"); } catch {}
+  $("#app").hidden = true; $("#login").hidden = false; $("#sair").hidden = true; $("#quem").textContent = ""; $("#lista").innerHTML = "";
+}
+$("#loginForm").addEventListener("submit", e => {
+  e.preventDefault(); chave = $("#chave").value.trim(); $("#chave").value = ""; $("#loginErr").textContent = "";
+  try { sessionStorage.setItem("fiscais_chave", chave); } catch {}
+  carregar();
+});
+$("#sair").onclick = sair;
+["#busca", "#fZona", "#fStatus", "#fCob", "#fConf"].forEach(s => $(s).addEventListener("input", render));
+$("#tabs").addEventListener("click", e => {
+  const b = e.target.closest("button[data-v]"); if (!b) return;
+  vista = b.dataset.v; document.querySelectorAll("#tabs button").forEach(x => x.setAttribute("aria-pressed", x === b)); render();
+});
+// Sai sozinho após 30 min sem uso.
+let ocioso;
+const reiniciarOcioso = () => { clearTimeout(ocioso); ocioso = setTimeout(() => { if (chave) sair(); }, 30 * 60 * 1000); };
+["click", "keydown", "touchstart"].forEach(ev => addEventListener(ev, reiniciarOcioso));
+reiniciarOcioso();
 
 if (chave) carregar();
 </script>
