@@ -39,9 +39,7 @@ async function enviarConfirmacaoApi(env, id, f, local) {
   await env.DB.prepare("UPDATE fiscais SET confirmado_em = ?, confirmado_via = 'api' WHERE id = ?").bind(new Date().toISOString(), id).run();
 }
 
-async function adminOk(request, env) {
-  const chave = env.ADMIN_KEY;
-  const enviada = (request.headers.get("authorization") || "").replace(/^Bearer\s+/i, "");
+async function chaveConfere(chave, enviada) {
   if (!chave || !enviada) return false;
   const enc = new TextEncoder();
   const [a, b] = await Promise.all([
@@ -49,6 +47,14 @@ async function adminOk(request, env) {
     crypto.subtle.digest("SHA-256", enc.encode(enviada)),
   ]);
   return crypto.subtle.timingSafeEqual(a, b);
+}
+
+// ADMIN_KEY: coordenação (tudo). CONSULTA_KEY: só leitura (página de consulta).
+async function perfil(request, env) {
+  const enviada = (request.headers.get("authorization") || "").replace(/^Bearer\s+/i, "");
+  if (await chaveConfere(env.ADMIN_KEY, enviada)) return "admin";
+  if (await chaveConfere(env.CONSULTA_KEY, enviada)) return "leitura";
+  return null;
 }
 
 async function ocupacao(env) {
@@ -94,13 +100,18 @@ async function cadastrar(request, env, ctx) {
 }
 
 async function admin(request, env, url) {
-  if (!(await adminOk(request, env))) return json({ error: "Chave de acesso inválida." }, 401);
+  const quem = await perfil(request, env);
+  if (!quem) return json({ error: "Chave de acesso inválida." }, 401);
   const id = Number(url.pathname.split("/")[4]);
 
   if (request.method === "GET") {
     const { results } = await env.DB.prepare("SELECT * FROM fiscais ORDER BY zona, local_nome, secao, nome").all();
-    return json(results);
+    return json(results, 200, { "x-perfil": quem });
   }
+  if (quem !== "admin") return json({ error: "Chave de consulta não permite alterações." }, 403);
+
+  // Cadastro feito pela coordenação (mesmas regras do formulário público).
+  if (request.method === "POST" && !id) return cadastrar(request, env, { waitUntil() {} });
 
   // Marca/desmarca a confirmação enviada manualmente pelo painel.
   if (request.method === "POST" && id && url.pathname.endsWith("/confirmado")) {

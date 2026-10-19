@@ -9,3 +9,4 @@ backend/storage/*.sqlite3
 .dev.vars
 .wrangler/
 ADMIN_KEY.txt
+dist/

@@ -1,12 +1,7 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "fiscaiscanoas",
-  "main": "src/worker.js",
+  "name": "fiscoptcanoas",
+  "pages_build_output_dir": "./dist",
   "compatibility_date": "2026-10-03",
-  "observability": {
-    "enabled": true,
-    "traces": { "enabled": true }
-  },
-  "assets": { "directory": "./public", "binding": "ASSETS", "run_worker_first": ["/api/*"] },
   "d1_databases": [{ "binding": "DB", "database_name": "fiscaiscanoas-db", "database_id": "ca80d17d-169a-48a6-b5e2-6c6bbe346af2" }]
 }

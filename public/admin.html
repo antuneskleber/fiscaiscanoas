@@ -25,7 +25,7 @@
   .bar { height: 6px; background: var(--line); border-radius: 3px; margin-top: 6px; overflow: hidden; }
   .bar i { display: block; height: 100%; background: var(--ok); }
   .filters { display: grid; grid-template-columns: 1fr; gap: 8px; }
-  @media (min-width: 720px) { .filters { grid-template-columns: 2fr 1fr 1.6fr auto; } }
+  @media (min-width: 720px) { .filters { grid-template-columns: 2fr 1fr 1.6fr auto auto; } }
   .rep { display: grid; gap: 22px; }
   @media (min-width: 900px) { .rep { grid-template-columns: 1fr 1fr; } }
   .rep h3 { margin: 0 0 10px; font-size: 1rem; }
@@ -66,7 +66,7 @@
 <body>
 <header>
   <h1>★ Coordenação de Fiscais · 25/10/2026</h1>
-  <button id="sair" hidden>Sair</button>
+  <div><a href="/consulta.html" style="color:#fff;margin-right:12px">Consulta</a><button id="sair" hidden>Sair</button></div>
 </header>
 
 <main>
@@ -92,6 +92,7 @@
         <select id="fCob"><option value="">Toda cobertura</option><option value="zero">Locais sem fiscal</option><option value="part">Parcialmente cobertos</option><option value="ok">Totalmente cobertos</option></select>
         <select id="fConf"><option value="">Todas as confirmações</option><option value="pend">Confirmação pendente</option><option value="ok">Confirmação enviada</option></select>
         <button class="p" id="proxima">Enviar próxima confirmação</button>
+        <button class="s" id="novo">+ Cadastrar fiscal</button>
       </div>
       <br>
       <div id="lista"></div>
@@ -101,7 +102,7 @@
 
 <dialog id="dlg">
   <form method="dialog" id="editForm">
-    <h3 style="margin:0">Editar fiscal</h3>
+    <h3 style="margin:0" id="dlgTitulo">Editar fiscal</h3>
     <label>Nome</label><input name="nome">
     <label>WhatsApp</label><input name="telefone" type="tel">
     <label>Zona</label><select name="zona"><option>66</option><option>134</option></select>
@@ -119,6 +120,7 @@ let chave = "";
 try { chave = sessionStorage.getItem("fiscais_chave") || ""; } catch {}
 let fiscais = [], locais = [], vista = "fiscais";
 
+const norm = v => String(v ?? "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
 const telFmt = t => { const d = String(t).replace(/^55/, ""); return d.length === 11 ? `(${d.slice(0,2)}) ${d.slice(2,7)}-${d.slice(7)}` : `(${d.slice(0,2)}) ${d.slice(2,6)}-${d.slice(6)}`; };
 const api = (path, opt = {}) => fetch(path, { ...opt, headers: { "content-type": "application/json", authorization: `Bearer ${chave}`, ...(opt.headers || {}) } });
 
@@ -152,11 +154,11 @@ function render() {
     ["Fiscais volantes", fiscais.filter(f => f.secao == null).length, null],
   ].map(([t, v, p]) => `<div class="kpi"><span>${t}</span><strong>${v}</strong>${p != null ? `<div class="bar"><i style="width:${p}%"></i></div>` : ""}</div>`).join("");
 
-  const q = $("#busca").value.trim().toLowerCase();
+  const q = norm($("#busca").value.trim());
   const z = Number($("#fZona").value) || null;
   const fc = $("#fCob").value;
   $("#fCob").style.display = vista === "locais" ? "" : "none";
-  $("#fConf").style.display = $("#proxima").style.display = vista === "fiscais" ? "" : "none";
+  $("#fConf").style.display = $("#proxima").style.display = $("#novo").style.display = vista === "fiscais" ? "" : "none";
   document.querySelector(".filters").style.display = vista === "relatorios" ? "none" : "";
   const pend = fiscais.filter(f => !f.confirmado_em).length;
   $("#proxima").textContent = pend ? `Enviar próxima confirmação (${pend})` : "Todas confirmadas ✓";
@@ -167,7 +169,7 @@ function render() {
     const rows = filtrados(q, z);
     $("#lista").innerHTML = rows.length ? `<table><thead><tr><th>Nome</th><th>WhatsApp</th><th>Zona</th><th>Local</th><th>Seção</th><th>Confirmação</th><th></th></tr></thead><tbody>${rows.map(f => `
       <tr><td><strong>${esc(f.nome)}</strong></td>
-      <td data-l="WhatsApp"><a class="wa" href="https://wa.me/${f.telefone}" target="_blank" rel="noopener">${telFmt(f.telefone)}</a></td>
+      <td data-l="WhatsApp"><a class="wa" href="https://wa.me/${f.telefone}" target="_blank" rel="noopener">${telFmt(f.telefone)}</a> <a href="tel:+${f.telefone}" title="Ligar" style="text-decoration:none">📞</a></td>
       <td data-l="Zona" class="n">${f.zona}</td><td data-l="Local">${esc(f.local_nome)}</td>
       <td data-l="Seção" class="n">${f.secao ?? '<span class="muted">volante</span>'}</td>
       <td data-l="Confirmação">${f.confirmado_em
@@ -177,7 +179,7 @@ function render() {
       : `<p class="muted">Nenhum fiscal encontrado.</p>`;
   } else {
     const rows = locais.map((l, i) => ({ l, c: cobs[i] }))
-      .filter(({ l, c }) => (!z || l.zona === z) && (!fc || c.status === fc) && (!q || `${l.nome} ${l.bairro} ${l.secoes.join(" ")}`.toLowerCase().includes(q)));
+      .filter(({ l, c }) => (!z || l.zona === z) && (!fc || c.status === fc) && (!q || norm(`${l.nome} ${l.bairro} ${l.endereco} ${l.secoes.join(" ")}`).includes(q)));
     const label = { ok: "completo", part: "parcial", zero: "sem fiscal" };
     $("#lista").innerHTML = `<table><thead><tr><th>Local</th><th>Zona</th><th>Seções</th><th>Cobertura</th><th>Fiscais</th></tr></thead><tbody>${rows.map(({ l, c }) => {
       const livres = l.secoes.filter(s => !c.fs.some(f => f.secao === s));
@@ -192,7 +194,7 @@ function render() {
 
 function filtrados(q, z) {
   const c = $("#fConf").value;
-  return fiscais.filter(f => (!z || f.zona === z) && (!c || (c === "ok") === !!f.confirmado_em) && (!q || `${f.nome} ${f.telefone} ${telFmt(f.telefone)} ${f.local_nome} ${f.secao ?? ""}`.toLowerCase().includes(q)));
+  return fiscais.filter(f => (!z || f.zona === z) && (!c || (c === "ok") === !!f.confirmado_em) && (!q || norm(`${f.nome} ${f.telefone} ${telFmt(f.telefone)} ${f.local_nome} ${f.secao ?? ""}`).includes(q)));
 }
 
 function sair() { chave = ""; try { sessionStorage.removeItem("fiscais_chave"); } catch {} $("#app").hidden = true; $("#login").hidden = false; $("#sair").hidden = true; }
@@ -230,14 +232,16 @@ function opcoesSecao(sel) {
 let editando = null;
 function abrirEdicao(f) {
   editando = f; $("#editErr").textContent = "";
-  ef.nome.value = f.nome; ef.telefone.value = telFmt(f.telefone); ef.zona.value = f.zona;
+  $("#dlgTitulo").textContent = f.id ? "Editar fiscal" : "Cadastrar fiscal";
+  ef.nome.value = f.nome; ef.telefone.value = f.telefone ? telFmt(f.telefone) : ""; ef.zona.value = f.zona;
   opcoesLocal(f.zona, f.local_id); opcoesSecao(f.secao); $("#dlg").showModal();
 }
+$("#novo").onclick = () => abrirEdicao({ nome: "", telefone: "", zona: 66, local_id: null, secao: null });
 ef.zona.onchange = () => { opcoesLocal(Number(ef.zona.value)); opcoesSecao(); };
 ef.local_id.onchange = () => opcoesSecao();
 $("#salvar").addEventListener("click", async e => {
   e.preventDefault();
-  const r = await api(`/api/admin/fiscais/${editando.id}`, { method: "PUT", body: JSON.stringify({ nome: ef.nome.value, telefone: ef.telefone.value, zona: ef.zona.value, local_id: ef.local_id.value, secao: ef.secao.value }) });
+  const r = await api(`/api/admin/fiscais${editando.id ? "/" + editando.id : ""}`, { method: editando.id ? "PUT" : "POST", body: JSON.stringify({ nome: ef.nome.value, telefone: ef.telefone.value, zona: ef.zona.value, local_id: ef.local_id.value, secao: ef.secao.value }) });
   if (!r.ok) { $("#editErr").textContent = (await r.json()).error; return; }
   $("#dlg").close(); carregar();
 });

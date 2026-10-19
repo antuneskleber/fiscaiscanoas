@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.1.0 - 2026-10-19
+
+- Nova página `/consulta.html` (modo leitura e busca do sistema antigo): cards por local com zona, endereço (link para o mapa), seções, fiscais e botões Ligar/WhatsApp; abas Todos / Com fiscal / Sem fiscal / Zona; busca sem acento por local, bairro, seção ou nome. Protegida pela chave só de leitura `CONSULTA_KEY`.
+- Painel: botão "+ Cadastrar fiscal" (cadastro manual pela coordenação), botão de ligar e busca sem acento.
+- Worker antigo `fiscaiscanoas.aklabs.workers.dev` excluído.
+
+- Site movido para o Cloudflare Pages em https://fiscoptcanoas.pages.dev (sem o subdomínio AKLabs). Build em `scripts/build.mjs` gera `dist/` com `_worker.js`; o mesmo D1 `fiscaiscanoas-db` continua em uso.
+- Removida a tabela antiga `assignments` (47 cadastros do sistema anterior), a pedido da coordenação. Restauração possível via D1 Time Travel até 18/11/2026 (bookmark `00000013-00000000-00005109-4eda8a42a95ab25ebb948425c894e57e`).
+
 ## 1.0.0 - 2026-10-19
 
 Reconstrução completa para o cadastro de fiscais voluntários do 2º turno (25/10/2026).
