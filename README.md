@@ -1,33 +1,24 @@
-# Fiscais Canoas
+# Fiscais PT Canoas
 
-Consulta pública e rápida de fiscais por local ou nome, para as 66ª e 134ª Zonas Eleitorais de Canoas.
+Cadastro de fiscais voluntários do PT Canoas para o 2º turno (25/10/2026).
+Produção: https://fiscaiscanoas.aklabs.workers.dev · Painel: `/admin.html`
 
-Developed by AK Labs
+## Estrutura
+- `src/worker.js` — API (Cloudflare Worker + D1 `fiscaiscanoas-db`)
+- `src/locais.json` — locais e seções de Canoas (TSE 2026), gerado por `scripts/build_locais.py`
+- `public/` — formulário (`index.html`) e painel da coordenação (`admin.html`)
+- `migrations/` — schema D1
 
-## Problema que resolve
+## Comandos
+```
+npx wrangler dev                                   # local (ADMIN_KEY em .dev.vars)
+npx wrangler d1 migrations apply fiscaiscanoas-db --remote
+npx wrangler secret put ADMIN_KEY                  # chave do painel
+npx wrangler deploy
+```
 
-Operadores e fiscais podem buscar pelo local ou pelo nome do fiscal, encontrando imediatamente o contato e o local associado sem percorrer manualmente a lista original.
-
-## Público alvo
-
-Coordenações eleitorais, fiscais, delegados de prédio e equipes de operação em campo.
-
-## Stack
-
-Frontend em HTML, CSS e JavaScript; produção no Cloudflare Workers com Cloudflare D1. A base SQLite local é usada apenas para a importação operacional e é ignorada pelo Git por conter contatos pessoais.
-
-## Arquitetura
-
-O Worker entrega os ativos públicos, consulta D1 e recebe cadastros abertos. A busca pública retorna nome, telefone e local de cada fiscal, conforme a autorização de publicidade informada pela coordenação. O banco D1 permanece fora do repositório.
-
-As seções ainda não foram definidas: os novos cadastros ficam associados ao local e identificados como pendentes de seção.
-
-## Execução local
-
-Para execução local, use `python backend/app.py` e acesse `http://127.0.0.1:8000`. A publicação atual está em `https://fiscaiscanoas.aklabs.workers.dev`; para novos deploys, use o fluxo descrito em `docs/DEPLOYMENT.md`.
-
-## Roadmap inicial
-
-- Adicionar revisão/versionamento da base eleitoral.
-- Permitir atualização a partir de planilha validada.
-- Criar painel privado para coordenação e distribuição de fiscais.
+## WhatsApp automático (opcional)
+Sem configuração, a confirmação é enviada pelo painel com 1 clique (wa.me).
+Para envio automático no cadastro, crie um template aprovado na WhatsApp Cloud API (Meta)
+com 5 variáveis no corpo (nome, zona, local, endereço, seção) e configure:
+`WA_TOKEN`, `WA_PHONE_ID`, `WA_TEMPLATE` (e opcionalmente `WA_LANG`, padrão `pt_BR`) via `wrangler secret put`.

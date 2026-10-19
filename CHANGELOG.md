@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.0.0 - 2026-10-19
+
+Reconstrução completa para o cadastro de fiscais voluntários do 2º turno (25/10/2026).
+
+- Novo formulário público mobile-first: nome completo, WhatsApp, zona (66/134), local de votação e seção (ou "qualquer seção do local").
+- Locais e seções gerados do CSV oficial do TSE 2026 (`scripts/build_locais.py` → `src/locais.json`): 90 locais, 759 seções.
+- Nova tabela D1 `fiscais` (migração `0002_fiscais.sql`) com WhatsApp único e uma seção por fiscal; a tabela antiga `assignments` foi preservada.
+- A página pública não expõe mais nomes e telefones; mostra apenas seções já ocupadas e totais.
+- Painel `/admin.html` protegido pelo secret `ADMIN_KEY`: métricas de cobertura, lista de fiscais, cobertura por local, edição, exclusão, exportação CSV e lista para WhatsApp.
+- Confirmação por WhatsApp: botão "Salvar confirmação no meu WhatsApp" na tela de sucesso; no painel, envio com 1 clique (wa.me) e fila "Enviar próxima confirmação", com controle de enviadas (migração `0003_confirmacao.sql`). Envio automático opcional pela WhatsApp Cloud API (secrets `WA_TOKEN`, `WA_PHONE_ID`, `WA_TEMPLATE`).
+- Aba Relatórios no painel: resumo por zona, cadastros por dia, locais sem fiscal, relatório por local para imprimir/PDF, TXT no formato antigo, CSV de fiscais, CSV de seções sem fiscal e lista para WhatsApp.
+- Worker movido para `src/worker.js` e assets para `public/`; SQLs avulsos antigos movidos para `legacy/` para não serem aplicados como migração.
+
 ## 0.4.7 - 2026-10-03
 
 - Desduplicação do fiscal Luiz Carlos da Silva, unificando seus dois números de telefone (`(51) 99129-534 / (51) 99180-0882`) com botões dedicados de ligação e WhatsApp para cada linha.
